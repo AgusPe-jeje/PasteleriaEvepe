@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora para Pastelería</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <header class="encabezado">
+        <h1>🎂 Calculadora para Pastelería</h1>
+        <p>Avanzá paso a paso para calcular tus precios sin complicaciones.</p>
+    </header>
+
+    <main class="contenedor">
+
+        <!-- NAVEGACIÓN POR PESTAÑAS -->
+        <nav class="barra-pasos">
+            <button class="tab-btn activo" onclick="mostrarPaso(1)">🛒 1. Despensa</button>
+            <button class="tab-btn" onclick="mostrarPaso(2)">🍰 2. Recetas</button>
+            <button class="tab-btn" onclick="mostrarPaso(3)">🎁 3. Boxes y Combos</button>
+            <button class="tab-btn" onclick="mostrarPaso(4)">📚 4. Mis Guardados</button>
+            <button class="tab-btn" onclick="mostrarPaso(5)">📊 5. Ventas y Finanzas</button>
+        </nav>
+
+        <!-- PESTAÑA 1: DESPENSA DE INSUMOS -->
+        <section id="paso-1" class="tarjeta paso-contenido activo">
+            <h2>🛒 1. Precios y Cantidades de Compras</h2>
+            <p class="subtxt">Anotá o modificá los precios del súper cuando cambien los costos:</p>
+
+            <form method="POST" action="/nuevo_insumo" class="form-nuevo-insumo">
+                <input type="text" name="nuevo_nombre" placeholder="Nombre (ej: Frutillas)" required>
+                <input type="number" step="0.01" name="nuevo_precio" placeholder="Precio ($)" required>
+                <input type="number" step="0.01" name="nueva_cantidad" placeholder="Cantidad que trae" required>
+                <select name="nueva_unidad">
+                    <option value="gr">Gramos (gr)</option>
+                    <option value="unidades">Unidades</option>
+                    <option value="ml">Mililitros (ml)</option>
+                </select>
+                <button type="submit" class="btn-violeta">➕ Agregar Insumo</button>
+            </form>
+
+            <hr class="linea">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                <h3 style="margin: 0;">📋 Lista de Insumos Cargados</h3>
+                <input type="text" 
+                       id="buscador-despensa" 
+                       onkeyup="filtrarDespensa()" 
+                       placeholder="🔍 Buscar insumo en la despensa..." 
+                       style="padding: 10px 14px; border: 2px solid #ce93d8; border-radius: 10px; font-size: 0.95rem; width: 280px; outline: none;">
+            </div>
+
+            <div class="tabla-insumos-container" id="contenedor-despensa">
+                {% for nombre, datos in insumos.items() %}
+                    <div class="card-insumo-edit" data-nombre="{{ nombre }}">
+                        <span class="nombre-insumo-edit"><strong>{{ nombre }}</strong> ({{ datos.unidad }})</span>
+                        
+                        <form method="POST" action="/editar_insumo" class="form-editar-inline">
+                            <input type="hidden" name="nombre_insumo" value="{{ nombre }}">
+                            <div class="grupo-edit">
+                                <label>Precio ($):</label>
+                                <input type="number" step="0.01" name="precio_compra" value="{{ datos.precio_compra }}" required>
+                            </div>
+                            <div class="grupo-edit">
+                                <label>Trae ({{ datos.unidad }}):</label>
+                                <input type="number" step="0.01" name="paquete_cant" value="{{ datos.paquete_cant }}" required>
+                            </div>
+                            <button type="submit" class="btn-actualizar">💾 Guardar</button>
+                        </form>
+
+                        <form method="POST" action="/eliminar_insumo/{{ nombre }}" style="display:inline;">
+                            <button type="submit" class="btn-borrar-insumo" title="Eliminar insumo">✕</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="siguiente-container">
+                <button type="button" class="btn-siguiente" onclick="mostrarPaso(2)">Ir a Crear Recetas ➔</button>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 2: ARMADO Y RESULTADO DE RECETA -->
+        <section id="paso-2" class="tarjeta paso-contenido">
+            <h2>🍰 2. Calculadora de Recetas</h2>
+
+            {% if recetas %}
+            <div class="campo-grande" style="background-color: #fcf4ff; padding: 15px; border-radius: 12px; border: 1px solid #e1bee7; margin-bottom: 20px;">
+                <label style="color: #6a1b9a;"><strong>📂 Cargar una receta guardada para editar:</strong></label>
+                
+                <datalist id="lista-recetas-guardadas-autocompletar">
+                    {% for r in recetas %}
+                        <option value="{{ r.nombre }}"></option>
+                    {% endfor %}
+                </datalist>
+
+                <input type="text" 
+                       id="buscador-receta-guardada" 
+                       list="lista-recetas-guardadas-autocompletar" 
+                       oninput="seleccionarRecetaPorNombre(this.value)" 
+                       placeholder="🔍 Escribí el nombre de una receta guardada..." 
+                       style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px; outline: none;">
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/" id="form-receta">
+                <div class="campo-grande">
+                    <label>Nombre de la Receta:</label>
+                    <input type="text" id="nombre_receta_input" name="nombre_receta" placeholder="Ej: Torta Lemon Pie / Alfajores de Maizena" value="{{ nombre_receta }}" required>
+                </div>
+
+                <label style="font-weight: bold; margin-bottom: 8px; display: block;">Ingredientes usados:</label>
+                
+                <datalist id="lista-insumos-autocompletar">
+                    {% for nombre, datos in insumos.items() %}
+                        <option value="{{ nombre }} (en {{ datos.unidad }})"></option>
+                    {% endfor %}
+                </datalist>
+
+                <div id="contenedor-ingredientes">
+                    {% if ingredientes_actuales %}
+                        {% for item in ingredientes_actuales %}
+                            <div class="renglon-ingrediente">
+                                <input type="text" name="ingrediente_nombre[]" list="lista-insumos-autocompletar" placeholder="🔍 Buscar ingrediente..." value="{% if item.nombre in insumos %}{{ item.nombre }} (en {{ insumos[item.nombre].unidad }}){% else %}{{ item.nombre }}{% endif %}" required style="flex: 2;">
+                                <input type="number" step="0.01" name="ingrediente_cantidad[]" value="{{ item.cantidad }}" placeholder="¿Cuánto usás?" required style="flex: 1;">
+                                <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="renglon-ingrediente">
+                            <input type="text" name="ingrediente_nombre[]" list="lista-insumos-autocompletar" placeholder="🔍 Buscar ingrediente..." required style="flex: 2;">
+                            <input type="number" step="0.01" name="ingrediente_cantidad[]" placeholder="¿Cuánto usás?" required style="flex: 1;">
+                            <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="button" class="btn-sumar-renglon" onclick="agregarRenglon()">➕ Agregar otro ingrediente</button>
+
+                <div class="campo-grande" style="margin-top: 15px;">
+                    <label><strong>¿Cuánto querés ganar de mano de obra?</strong></label>
+                    <select name="porcentaje_ganancia" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px;">
+                        <option value="50" {% if porcentaje_ganancia == 50 %}selected{% endif %}>Tranquilo (50% de ganancia)</option>
+                        <option value="80" {% if porcentaje_ganancia == 80 %}selected{% endif %}>Estándar (80% de ganancia) - Recomendado</option>
+                        <option value="100" {% if porcentaje_ganancia == 100 %}selected{% endif %}>Duplicar costo (100% de ganancia)</option>
+                        <option value="150" {% if porcentaje_ganancia == 150 %}selected{% endif %}>Premium / Complejo (150% de ganancia)</option>
+                    </select>
+                </div>
+
+                <div class="botones-accion" style="margin-top: 20px;">
+                    <button type="submit" name="accion_calcular" class="btn-verde-gigante">🧮 CALCULAR PRECIO DE LA RECETA</button>
+                </div>
+            </form>
+
+            {% if precio_sugerido > 0 %}
+                <div class="caja-precio-final" style="margin-top: 30px;">
+                    <span class="titulo-final">Precio Sugerido para Vender:</span>
+                    <span class="monto-final">${{ precio_sugerido }}</span>
+                    <button type="button" onclick="guardarRecetaActual()" class="btn-guardar-receta">💾 Guardar esta Receta</button>
+                </div>
+
+                <div class="explicacion-ganancia">
+                    <h3>🔍 Desglose de este Cálculo:</h3>
+                    <div class="item-desglose">
+                        <span>🛒 <strong>Ingredientes:</strong> ${{ costo_ingredientes }}</span>
+                    </div>
+                    <div class="item-desglose">
+                        <span>💡 <strong>Gas, Luz y Caja (15%):</strong> ${{ gastos_extras }}</span>
+                    </div>
+                    <div class="item-desglose destacado">
+                        <span>👩‍🍳 <strong>Tu Mano de Obra / Ganancia Limpia:</strong> ${{ ganancia_mano_obra }}</span>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- PESTAÑA 3: ARMADO DE BOXES Y COMBOS -->
+        <section id="paso-3" class="tarjeta paso-contenido">
+            <h2>🎁 3. Armador de Boxes y Combos</h2>
+            <p class="subtxt">Combiná recetas que ya guardaste con cajas o bebidas para armar un combo completo:</p>
+
+            <div class="campo-grande" style="background-color: #fcf4ff; padding: 15px; border-radius: 12px; border: 1px solid #e1bee7; margin-bottom: 20px;">
+                <label style="color: #6a1b9a;"><strong>📂 Cargar un Box guardado para editar:</strong></label>
+                
+                <datalist id="lista-boxes-guardados-autocompletar">
+                    {% for b in boxes %}
+                        <option value="{{ b.nombre }}"></option>
+                    {% endfor %}
+                </datalist>
+
+                <input type="text" 
+                       id="buscador-box-guardado" 
+                       list="lista-boxes-guardados-autocompletar" 
+                       oninput="seleccionarBoxPorNombre(this.value)" 
+                       placeholder="🔍 Escribí para buscar un box guardado..." 
+                       style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px; outline: none;">
+            </div>
+
+            <datalist id="lista-combos-autocompletar">
+                {% for r in recetas %}
+                    <option value="{{ r.nombre }} (Receta Guardada)"></option>
+                {% endfor %}
+                {% for nombre, datos in insumos.items() %}
+                    <option value="{{ nombre }} (Insumo Suelto)"></option>
+                {% endfor %}
+            </datalist>
+
+            <form method="POST" action="/nuevo_box" id="form-box">
+                <div class="campo-grande">
+                    <label>Nombre del Box / Combo:</label>
+                    <input type="text" id="nombre_box_input" name="nombre_box" placeholder="Ej: Box Desayuno Aniversario" value="Box Desayuno" required>
+                </div>
+
+                <label style="font-weight: bold; margin-bottom: 8px; display: block;">Productos que incluye este Box:</label>
+                <div id="contenedor-box-items">
+                    <div class="renglon-ingrediente">
+                        <input type="text" name="box_prod_nombre[]" list="lista-combos-autocompletar" placeholder="🔍 Buscar receta o empaque..." required style="flex: 2;">
+                        <input type="number" step="1" name="box_prod_cantidad[]" placeholder="Cantidad" value="1" required style="flex: 1;">
+                        <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-sumar-renglon" onclick="agregarRenglonBox()">➕ Agregar otro producto al Box</button>
+
+                <div class="campo-grande" style="margin-top: 15px;">
+                    <label><strong>¿Qué porcentaje de ganancia querés sumarle al Box?</strong></label>
+                    <select name="porcentaje_ganancia_box" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px;">
+                        <option value="30">Tranquilo (30% de ganancia)</option>
+                        <option value="50" selected>Estándar (50% de ganancia) - Recomendado</option>
+                        <option value="80">Alto (80% de ganancia)</option>
+                        <option value="100">Duplicar el costo (100% de ganancia)</option>
+                    </select>
+                </div>
+
+                <div class="botones-accion" style="margin-top: 20px;">
+                    <button type="submit" class="btn-verde-gigante">🎁 CALCULAR Y GUARDAR BOX</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- PESTAÑA 4: MIS GUARDADOS -->
+        <section id="paso-4" class="tarjeta paso-contenido">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                <h2 style="margin: 0;">📚 4. Mis Recetas y Boxes Guardados</h2>
+                <input type="text" 
+                       id="buscador-guardados" 
+                       onkeyup="filtrarGuardados()" 
+                       placeholder="🔍 Buscar en recetas y boxes..." 
+                       style="padding: 10px 14px; border: 2px solid #ab47bc; border-radius: 10px; font-size: 0.95rem; width: 280px; outline: none;">
+            </div>
+            
+            <p class="subtxt">Todos tus precios se recalculan automáticamente si modificás los insumos en la Despensa:</p>
+
+            {% if recetas %}
+                <h3>🍰 Recetas Individuales</h3>
+                <div class="grid-guardadas" style="margin-bottom: 30px;" id="contenedor-recetas-guardadas">
+                    {% for r in recetas %}
+                        <div class="card-guardada card-item-guardado" data-nombre="{{ r.nombre }}">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <h3>{{ r.nombre }}</h3>
+                                <form method="POST" action="/eliminar_receta/{{ loop.index0 }}" style="display:inline;">
+                                    <button type="submit" class="btn-borrar-insumo" title="Eliminar receta">✕</button>
+                                </form>
+                            </div>
+                            <p>Costo actual: <strong>${{ r.costo }}</strong></p>
+                            <p class="precio-destacado">Vender a: <strong>${{ r.precio_venta }}</strong></p>
+                            <small>Ganancia limpia: ${{ r.ganancia }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>Aún no guardaste ninguna receta individual.</p>
+            {% endif %}
+
+            <hr class="linea">
+
+            {% if boxes %}
+                <h3>🎁 Boxes y Combos</h3>
+                <div class="grid-guardadas" id="contenedor-boxes-guardados">
+                    {% for b in boxes %}
+                        <div class="card-guardada card-item-guardado" style="border-color: #ab47bc; background-color: #fcf4ff;" data-nombre="{{ b.nombre }}">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <h3 style="color: #6a1b9a; margin: 0;">{{ b.nombre }}</h3>
+                                <form method="POST" action="/eliminar_box/{{ loop.index0 }}" style="display:inline;">
+                                    <button type="submit" class="btn-borrar-insumo" title="Eliminar box">✕</button>
+                                </form>
+                            </div>
+                            <ul style="padding-left: 18px; margin: 10px 0; font-size: 0.9rem; color: #555;">
+                                {% for prod in b.productos %}
+                                    <li>{{ prod.cantidad }}x {{ prod.nombre }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p style="margin: 5px 0;">Costo del Box: <strong>${{ b.costo }}</strong></p>
+                            <p class="precio-destacado" style="font-size: 1.2rem;">Vender a: <strong>${{ b.precio_venta }}</strong></p>
+                            <small style="color: #2e7d32; font-weight: bold;">Ganancia Total: ${{ b.ganancia }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>Aún no armaste ningún box o combo.</p>
+            {% endif %}
+        </section>
+
+        <!-- PESTAÑA 5: VENTAS Y FINANZAS CON FILTRO MENSUAL -->
+        <section id="paso-5" class="tarjeta paso-contenido">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                <h2 style="margin: 0;">📊 5. Control de Ventas y Finanzas</h2>
+                
+                <!-- SELECTOR DE MES -->
+                <div style="display: flex; align-items: center; gap: 8px; background-color: #f3e5f5; padding: 6px 12px; border-radius: 10px; border: 1px solid #ce93d8;">
+                    <label for="filtro-mes" style="font-weight: bold; color: #4a148c; font-size: 0.9rem;">📅 Filtrar por mes:</label>
+                    <input type="month" 
+                        id="filtro-mes" 
+                        value="{{ mes_seleccionado }}" 
+                        onchange="location.href='/?paso=5&mes_filtro=' + this.value" 
+                        style="padding: 6px 10px; border-radius: 8px; border: 1px solid #ab47bc; outline: none; font-weight: bold; color: #6a1b9a;">
+                </div>
+            </div>
+
+            <p class="subtxt">Registrá tus ventas para conocer tus ingresos, costos e ingresos netos del mes seleccionado:</p>
+
+            <!-- RESUMEN FINANCIERO -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                <div style="background-color: #e3f2fd; border: 1px solid #90caf9; padding: 15px; border-radius: 12px; text-align: center;">
+                    <span style="font-size: 0.85rem; color: #1565c0; font-weight: bold;">💵 INGRESOS TOTALES</span>
+                    <h3 style="margin: 5px 0 0 0; color: #0d47a1; font-size: 1.5rem;">${{ total_ingresos }}</h3>
+                </div>
+                <div style="background-color: #ffebee; border: 1px solid #ef9a9a; padding: 15px; border-radius: 12px; text-align: center;">
+                    <span style="font-size: 0.85rem; color: #c62828; font-weight: bold;">🛒 COSTOS DE PRODUCCIÓN</span>
+                    <h3 style="margin: 5px 0 0 0; color: #b71c1c; font-size: 1.5rem;">${{ total_costos }}</h3>
+                </div>
+                <div style="background-color: #e8f5e9; border: 1px solid #a5d6a7; padding: 15px; border-radius: 12px; text-align: center;">
+                    <span style="font-size: 0.85rem; color: #2e7d32; font-weight: bold;">📈 GANANCIA NETA REAL</span>
+                    <h3 style="margin: 5px 0 0 0; color: #1b5e20; font-size: 1.5rem;">${{ total_ganancia }}</h3>
+                </div>
+            </div>
+
+            <!-- FORMULARIO REGISTRAR VENTA -->
+            <form method="POST" action="/nueva_venta" style="background-color: #fcf4ff; padding: 20px; border-radius: 12px; border: 1px solid #e1bee7; margin-bottom: 25px;">
+                <h3 style="margin-top: 0; color: #6a1b9a;">📝 Registrar Nueva Venta</h3>
+                
+                <datalist id="lista-ventas-autocompletar">
+                    {% for r in recetas %}
+                        <option value="{{ r.nombre }} (Receta)"></option>
+                    {% endfor %}
+                    {% for b in boxes %}
+                        <option value="{{ b.nombre }} (Box)"></option>
+                    {% endfor %}
+                </datalist>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div style="flex: 2; min-width: 200px;">
+                        <label style="font-size: 0.85rem; font-weight: bold;">Producto vendido:</label>
+                        <input type="text" name="producto_nombre" list="lista-ventas-autocompletar" placeholder="🔍 Buscar receta o box..." required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ab47bc; margin-top: 4px;">
+                    </div>
+                    <div style="flex: 1; min-width: 100px;">
+                        <label style="font-size: 0.85rem; font-weight: bold;">Cantidad:</label>
+                        <input type="number" name="cantidad" value="1" min="1" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ab47bc; margin-top: 4px;">
+                    </div>
+                    <div style="flex: 1; min-width: 130px;">
+                        <label style="font-size: 0.85rem; font-weight: bold;">Fecha:</label>
+                        <input type="date" name="fecha" value="{{ fecha_hoy }}" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ab47bc; margin-top: 4px;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-violeta" style="width: 100%; margin-top: 15px; padding: 12px; font-weight: bold;">💰 Registrar Venta</button>
+            </form>
+
+            <!-- HISTORIAL DE VENTAS DEL MES SELECCIONADO -->
+            <h3>📋 Historial de Ventas del Mes</h3>
+            {% if ventas %}
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem;">
+                        <thead>
+                            <tr style="background-color: #f3e5f5; color: #4a148c; text-align: left;">
+                                <th style="padding: 10px; border-bottom: 2px solid #ab47bc;">Fecha</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #ab47bc;">Producto</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #ab47bc;">Cant.</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #ab47bc;">Costo</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #ab47bc;">Cobrado</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #ab47bc;">Ganancia</th>
+                                <th style="padding: 10px; border-bottom: 2px solid #ab47bc; text-align: center;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in ventas %}
+                                <tr style="border-bottom: 1px solid #e0e0e0;">
+                                    <td style="padding: 10px;">{{ v.fecha }}</td>
+                                    <td style="padding: 10px;"><strong>{{ v.producto }}</strong> <small style="color: #777;">({{ v.tipo }})</small></td>
+                                    <td style="padding: 10px;">{{ v.cantidad }}</td>
+                                    <td style="padding: 10px; color: #c62828;">${{ v.costo_total }}</td>
+                                    <td style="padding: 10px; font-weight: bold;">${{ v.precio_total }}</td>
+                                    <td style="padding: 10px; color: #2e7d32; font-weight: bold;">+${{ v.ganancia_total }}</td>
+                                    <td style="padding: 10px; text-align: center;">
+                                        <form method="POST" action="/eliminar_venta/{{ loop.index0 }}?mes_filtro={{ mes_seleccionado }}" style="display:inline;">
+                                            <button type="submit" class="btn-borrar-insumo" title="Eliminar registro">✕</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="color: #777;">No hay ventas registradas para el mes seleccionado.</p>
+            {% endif %}
+        </section>
+
+    </main>
+
+    <script>
+        const insumosJS = JSON.parse('{{ insumos_json | safe if insumos_json else "{}" }}');
+        const recetasGuardadasJS = JSON.parse('{{ recetas_json | safe if recetas_json else "[]" }}');
+        const boxesGuardadosJS = JSON.parse('{{ boxes_json | safe if boxes_json else "[]" }}');
+
+        function normalizarTexto(str) {
+            return str
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+
+        function mostrarPaso(numeroPaso) {
+            document.querySelectorAll('.paso-contenido').forEach(sec => {
+                sec.classList.remove('activo');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('activo');
+            });
+
+            const pasoSeleccionado = document.getElementById('paso-' + numeroPaso);
+            const botonSeleccionado = document.querySelectorAll('.tab-btn')[numeroPaso - 1];
+
+            if (pasoSeleccionado && botonSeleccionado) {
+                pasoSeleccionado.classList.add('activo');
+                botonSeleccionado.classList.add('activo');
+            }
+        }
+
+        function filtrarDespensa() {
+            const input = document.getElementById('buscador-despensa');
+            const textoBuscado = normalizarTexto(input.value);
+            const tarjetas = document.querySelectorAll('#contenedor-despensa .card-insumo-edit');
+
+            tarjetas.forEach(tarjeta => {
+                const nombreInsumo = normalizarTexto(tarjeta.getAttribute('data-nombre') || '');
+                if (nombreInsumo.includes(textoBuscado)) {
+                    tarjeta.style.display = 'flex';
+                } else {
+                    tarjeta.style.display = 'none';
+                }
+            });
+        }
+
+        function filtrarGuardados() {
+            const input = document.getElementById('buscador-guardados');
+            const textoBuscado = normalizarTexto(input.value);
+            const tarjetasGuardadas = document.querySelectorAll('.card-item-guardado');
+
+            tarjetasGuardadas.forEach(tarjeta => {
+                const nombreElemento = normalizarTexto(tarjeta.getAttribute('data-nombre') || '');
+                if (nombreElemento.includes(textoBuscado)) {
+                    tarjeta.style.display = 'block';
+                } else {
+                    tarjeta.style.display = 'none';
+                }
+            });
+        }
+
+        function seleccionarRecetaPorNombre(nombreIngresado) {
+            const nombreLimpio = normalizarTexto(nombreIngresado);
+            if (!nombreLimpio) return;
+
+            const indexMatch = recetasGuardadasJS.findIndex(r => normalizarTexto(r.nombre) === nombreLimpio);
+            if (indexMatch !== -1) {
+                cargarRecetaSeleccionada(indexMatch);
+            }
+        }
+
+        function seleccionarBoxPorNombre(nombreIngresado) {
+            const nombreLimpio = normalizarTexto(nombreIngresado);
+            if (!nombreLimpio) return;
+
+            const indexMatch = boxesGuardadosJS.findIndex(b => normalizarTexto(b.nombre) === nombreLimpio);
+            if (indexMatch !== -1) {
+                cargarBoxSeleccionado(indexMatch);
+            }
+        }
+
+        function agregarRenglon() {
+            const contenedor = document.getElementById('contenedor-ingredientes');
+            const primerRenglon = contenedor.querySelector('.renglon-ingrediente');
+            const nuevoRenglon = primerRenglon.cloneNode(true);
+            nuevoRenglon.querySelectorAll('input').forEach(input => input.value = "");
+            contenedor.appendChild(nuevoRenglon);
+        }
+
+        function agregarRenglonBox() {
+            const contenedor = document.getElementById('contenedor-box-items');
+            const primerRenglon = contenedor.querySelector('.renglon-ingrediente');
+            const nuevoRenglon = primerRenglon.cloneNode(true);
+            nuevoRenglon.querySelectorAll('input').forEach(input => input.value = "");
+            nuevoRenglon.querySelector('input[type="number"]').value = "1";
+            contenedor.appendChild(nuevoRenglon);
+        }
+
+        function borrarRenglon(boton) {
+            const renglones = boton.parentElement.parentElement.querySelectorAll('.renglon-ingrediente');
+            if (renglones.length > 1) {
+                boton.parentElement.remove();
+            } else {
+                alert("Tenés que dejar al menos un elemento.");
+            }
+        }
+
+        function cargarRecetaSeleccionada(index) {
+            if (index === "" || index === -1 || !recetasGuardadasJS[index]) return;
+
+            const receta = recetasGuardadasJS[index];
+            document.getElementById('nombre_receta_input').value = receta.nombre;
+
+            const selectGanancia = document.querySelector('select[name="porcentaje_ganancia"]');
+            if (selectGanancia && receta.porcentaje) {
+                selectGanancia.value = receta.porcentaje;
+            }
+
+            const contenedor = document.getElementById('contenedor-ingredientes');
+            contenedor.innerHTML = '';
+
+            receta.ingredientes.forEach(item => {
+                const divRenglon = document.createElement('div');
+                divRenglon.className = 'renglon-ingrediente';
+
+                let valorMostrar = item.nombre;
+                if (insumosJS[item.nombre]) {
+                    valorMostrar = `${item.nombre} (en ${insumosJS[item.nombre].unidad})`;
+                }
+
+                divRenglon.innerHTML = `
+                    <input type="text" name="ingrediente_nombre[]" list="lista-insumos-autocompletar" placeholder="🔍 Buscar ingrediente..." value="${valorMostrar}" required style="flex: 2;">
+                    <input type="number" step="0.01" name="ingrediente_cantidad[]" value="${item.cantidad}" placeholder="¿Cuánto usás?" required style="flex: 1;">
+                    <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                `;
+                contenedor.appendChild(divRenglon);
+            });
+        }
+
+        function cargarBoxSeleccionado(index) {
+            if (index === "" || index === -1 || !boxesGuardadosJS[index]) return;
+
+            const box = boxesGuardadosJS[index];
+            document.getElementById('nombre_box_input').value = box.nombre;
+
+            const selectGanancia = document.querySelector('select[name="porcentaje_ganancia_box"]');
+            if (selectGanancia && box.porcentaje) {
+                selectGanancia.value = box.porcentaje;
+            }
+
+            const contenedor = document.getElementById('contenedor-box-items');
+            contenedor.innerHTML = '';
+
+            box.productos.forEach(item => {
+                const divRenglon = document.createElement('div');
+                divRenglon.className = 'renglon-ingrediente';
+
+                let valorMostrar = item.nombre;
+                const esReceta = recetasGuardadasJS.some(r => r.nombre === item.nombre);
+                if (esReceta) {
+                    valorMostrar = `${item.nombre} (Receta Guardada)`;
+                } else if (insumosJS[item.nombre]) {
+                    valorMostrar = `${item.nombre} (Insumo Suelto)`;
+                }
+
+                divRenglon.innerHTML = `
+                    <input type="text" name="box_prod_nombre[]" list="lista-combos-autocompletar" placeholder="🔍 Buscar receta o empaque..." value="${valorMostrar}" required style="flex: 2;">
+                    <input type="number" step="1" name="box_prod_cantidad[]" value="${item.cantidad}" placeholder="Cantidad" required style="flex: 1;">
+                    <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                `;
+                contenedor.appendChild(divRenglon);
+            });
+        }
+
+        function guardarRecetaActual() {
+            const form = document.getElementById('form-receta');
+            const inputAccion = document.createElement('input');
+            inputAccion.type = 'hidden';
+            inputAccion.name = 'accion_guardar';
+            inputAccion.value = '1';
+            form.appendChild(inputAccion);
+            form.submit();
+        }
+
+        // CONTROL DE NAVEGACIÓN POR PARÁMETROS URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const pasoUrl = urlParams.get('paso');
+        const precioSugerido = Number("{{ precio_sugerido or 0 }}");
+
+        if (pasoUrl) {
+            mostrarPaso(Number(pasoUrl));
+        } else if (precioSugerido > 0) {
+            mostrarPaso(2);
+        }
+    </script>
+
+</body>
+</html>
