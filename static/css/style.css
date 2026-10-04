@@ -1,148 +1,242 @@
+/* ==========================================
+   ESTILOS GENERALES Y VARIABLES
+   ========================================== */
+:root {
+    --color-principal: #6a1b9a;
+    --color-secundario: #ab47bc;
+    --color-suave: #fcf4ff;
+    --color-hover: #8e24aa;
+    --color-verde: #2e7d32;
+    --color-rojo: #c62828;
+    --color-fondo: #f5f5f5;
+    --sombra-tarjeta: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 * {
     box-sizing: border-box;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: #f7f5f8;
-    color: #2c2c2c;
-    margin: 0;
-    padding: 20px;
+    background-color: var(--color-fondo);
+    color: #333;
+    padding: 15px 10px;
 }
 
+/* ENCABEZADO */
 .encabezado {
     text-align: center;
     margin-bottom: 20px;
 }
 
 .encabezado h1 {
-    color: #7b1fa2;
-    margin: 0 0 5px 0;
-    font-size: 2rem;
+    color: var(--color-principal);
+    font-size: 1.8rem;
+    margin-bottom: 5px;
 }
 
+.encabezado p {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* CONTENEDOR PRINCIPAL */
 .contenedor {
-    max-width: 850px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
-/* NAVEGACIÓN */
+/* BARRA DE NAVEGACIÓN (PESTAÑAS) */
 .barra-pasos {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
 }
 
 .tab-btn {
-    flex: 1;
-    padding: 14px 10px;
-    border: none;
-    background-color: #ede7f6;
-    color: #5e35b1;
-    font-size: 0.95rem;
-    font-weight: bold;
-    border-radius: 12px 12px 0 0;
+    flex: 1 1 auto;
+    min-width: 130px;
+    padding: 12px 10px;
+    background-color: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-weight: 600;
+    color: #555;
     cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    text-align: center;
 }
 
 .tab-btn.activo {
-    background-color: #ffffff;
-    color: #7b1fa2;
-    box-shadow: 0 -3px 10px rgba(0,0,0,0.05);
+    background-color: var(--color-principal);
+    color: #fff;
+    border-color: var(--color-principal);
+    box-shadow: 0 4px 8px rgba(106, 27, 154, 0.25);
+}
+
+/* TARJETAS DE CONTENIDO */
+.tarjeta {
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: var(--sombra-tarjeta);
+    margin-bottom: 20px;
 }
 
 .paso-contenido {
     display: none;
-    background: white;
-    padding: 30px;
-    border-radius: 0 0 18px 18px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-    border: 1px solid #ede7f6;
 }
 
 .paso-contenido.activo {
     display: block;
 }
 
-.tarjeta h2 {
-    color: #4a148c;
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.4rem;
-}
-
 .subtxt {
-    font-size: 0.95rem;
     color: #666;
+    font-size: 0.9rem;
     margin-bottom: 15px;
-}
-
-.form-nuevo-insumo {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.form-nuevo-insumo input, .form-nuevo-insumo select {
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 1rem;
-    flex: 1;
-    min-width: 130px;
-}
-
-.btn-violeta {
-    background-color: #7b1fa2;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    font-weight: bold;
-    border-radius: 10px;
-    cursor: pointer;
 }
 
 .linea {
     border: 0;
     height: 1px;
-    background-color: #eee;
+    background: #e0e0e0;
     margin: 20px 0;
 }
 
-/* TARJETAS EDITABLES DE INSUMOS */
+/* FORMULARIOS E INPUTS */
+.campo-grande {
+    margin-bottom: 15px;
+}
+
+.campo-grande label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="month"],
+select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ce93d8;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    background-color: #fff;
+    transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+    border-color: var(--color-principal);
+}
+
+/* BOTONES */
+button {
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+.btn-violeta {
+    background-color: var(--color-principal);
+    color: white;
+    padding: 12px 18px;
+    font-weight: bold;
+}
+
+.btn-violeta:hover {
+    background-color: var(--color-hover);
+}
+
+.btn-verde-gigante {
+    width: 100%;
+    background-color: var(--color-verde);
+    color: white;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 12px;
+    margin-top: 10px;
+}
+
+.btn-sumar-renglon {
+    background-color: var(--color-suave);
+    color: var(--color-principal);
+    border: 2px dashed var(--color-secundario);
+    width: 100%;
+    padding: 10px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.btn-borrar {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+}
+
+.btn-actualizar {
+    background-color: var(--color-principal);
+    color: white;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.btn-borrar-insumo {
+    background-color: #ffebee;
+    color: var(--color-rojo);
+    border: 1px solid #ef9a9a;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+/* LISTAS DE RENGLONES DINÁMICOS */
+.renglon-ingrediente {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* LISTA EDITABLE DE INSUMOS */
 .tabla-insumos-container {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding-right: 5px;
 }
 
 .card-insumo-edit {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
     justify-content: space-between;
-    background-color: #fdf8ff;
-    border: 1px solid #f0d8f5;
-    padding: 10px 15px;
-    border-radius: 10px;
+    align-items: center;
+    background-color: var(--color-suave);
+    border: 1px solid #e1bee7;
+    padding: 12px;
+    border-radius: 12px;
+    flex-wrap: wrap;
     gap: 10px;
-}
-
-.nombre-insumo-edit {
-    flex: 1.5;
-    min-width: 180px;
-    color: #4a148c;
 }
 
 .form-editar-inline {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 2;
     flex-wrap: wrap;
 }
 
@@ -154,147 +248,166 @@ body {
 }
 
 .grupo-edit input {
-    width: 85px;
+    width: 90px;
     padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 0.95rem;
 }
 
-.btn-actualizar {
-    background-color: #4a148c;
-    color: white;
-    border: none;
-    padding: 7px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    cursor: pointer;
+/* GRID DE TARJETAS GUARDADAS */
+.grid-guardadas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
 }
 
-.btn-borrar-insumo {
-    background: none;
-    border: none;
-    color: #c62828;
-    font-weight: bold;
-    font-size: 1.1rem;
-    cursor: pointer;
-    padding: 0 5px;
-}
-
-/* BOTÓN SIGUIENTE Y RECETA */
-.siguiente-container {
-    margin-top: 25px;
-    text-align: right;
-}
-
-.btn-siguiente {
-    background-color: #7b1fa2;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    font-size: 1rem;
-    font-weight: bold;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-.campo-grande label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-.campo-grande input {
-    width: 100%;
-    padding: 14px;
-    border: 2px solid #ab47bc;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    margin-bottom: 15px;
-}
-
-.renglon-ingrediente {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.renglon-ingrediente select, .renglon-ingrediente input {
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 1rem;
-}
-
-.renglon-ingrediente select { flex: 2; }
-.renglon-ingrediente input { flex: 1; }
-
-.btn-borrar { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
-
-.btn-sumar-renglon {
-    background-color: #f3e5f5;
-    color: #6a1b9a;
-    border: 2px dashed #ce93d8;
-    width: 100%;
-    padding: 12px;
-    font-weight: bold;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-bottom: 20px;
-}
-
-.btn-verde-gigante {
-    width: 100%;
-    background-color: #2e7d32;
-    color: white;
-    border: none;
-    padding: 16px;
-    font-size: 1.2rem;
-    font-weight: bold;
+.card-guardada {
+    background: #fff;
+    border: 2px solid #e0e0e0;
     border-radius: 12px;
-    cursor: pointer;
+    padding: 15px;
+    position: relative;
 }
 
-/* RESULTADOS Y GUARDADAS */
+.precio-destacado {
+    color: var(--color-verde);
+    font-size: 1.1rem;
+    margin: 5px 0;
+}
+
+/* RESUMEN DE RESULTADOS DE RECETAS */
 .caja-precio-final {
     background-color: #e8f5e9;
-    border: 2px solid #4caf50;
-    border-radius: 16px;
-    padding: 25px;
+    border: 2px solid #a5d6a7;
+    border-radius: 12px;
+    padding: 20px;
     text-align: center;
-    margin-bottom: 20px;
+}
+
+.titulo-final {
+    display: block;
+    color: #2e7d32;
+    font-size: 1rem;
+    font-weight: bold;
 }
 
 .monto-final {
     display: block;
-    font-size: 3.5rem;
+    font-size: 2.2rem;
     font-weight: bold;
-    color: #2e7d32;
-    margin: 10px 0;
+    color: #1b5e20;
+    margin: 8px 0;
 }
 
 .btn-guardar-receta {
-    background-color: #7b1fa2;
+    background-color: var(--color-verde);
     color: white;
-    border: none;
     padding: 10px 20px;
     font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
+    margin-top: 10px;
 }
 
 .explicacion-ganancia {
-    background-color: #fafafa;
-    border: 1px solid #eee;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
     border-radius: 12px;
-    padding: 20px;
+    padding: 15px;
+    margin-top: 15px;
 }
 
-.item-desglose { margin-bottom: 12px; display: flex; flex-direction: column; }
-.item-desglose.destacado { background-color: #f3e5f5; padding: 10px; border-radius: 8px; border-left: 4px solid #7b1fa2; }
-.item-desglose small { color: #666; margin-top: 2px; }
+.item-desglose {
+    margin-top: 8px;
+    font-size: 0.95rem;
+}
 
-.grid-guardadas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-.card-guardada { background-color: #fdf7ff; border: 1px solid #e1bee7; border-radius: 12px; padding: 15px; }
-.precio-destacado { color: #2e7d32; font-size: 1.1rem; margin: 5px 0; }
+.item-desglose.destacado {
+    color: var(--color-verde);
+    font-weight: bold;
+}
+
+/* ==========================================
+   MEDIAS QUERIES PARA ADAPTACIÓN A CELULARES
+   ========================================== */
+@media (max-width: 600px) {
+    body {
+        padding: 8px 5px;
+    }
+
+    .encabezado h1 {
+        font-size: 1.5rem;
+    }
+
+    .tarjeta {
+        padding: 15px 12px;
+    }
+
+    /* Pestañas estilo cuadrícula en celulares */
+    .barra-pasos {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .tab-btn {
+        min-width: auto;
+        padding: 10px 6px;
+        font-size: 0.82rem;
+    }
+
+    /* El último botón de finanzas ocupa todo el ancho */
+    .tab-btn:nth-child(5) {
+        grid-column: span 2;
+    }
+
+    /* Renoglon de ingrediente apilado o más holgado */
+    .renglon-ingrediente {
+        flex-direction: row;
+        gap: 5px;
+    }
+
+    .renglon-ingrediente input[type="text"] {
+        flex: 2 !important;
+    }
+
+    .renglon-ingrediente input[type="number"] {
+        flex: 1 !important;
+        min-width: 70px;
+    }
+
+    /* Insumos en la despensa */
+    .card-insumo-edit {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-editar-inline {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .grupo-edit input {
+        width: 80px;
+    }
+
+    /* Formulario de agregar nuevo insumo */
+    .form-nuevo-insumo {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-nuevo-insumo input, 
+    .form-nuevo-insumo select, 
+    .form-nuevo-insumo button {
+        width: 100% !important;
+    }
+
+    /* Formulario de Ventas */
+    #paso-5 form div[style*="display: flex"] {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #buscador-despensa,
+    #buscador-guardados {
+        width: 100% !important;
+    }
+}
