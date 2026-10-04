@@ -7,6 +7,10 @@ app = Flask(__name__)
 
 ARCHIVO_DATOS = 'datos_pasteleria.json'
 
+@app.route('/ping')
+def ping():
+    return "OK", 200
+
 def cargar_datos():
     """Lee el archivo JSON del disco o crea la estructura vacía si no existe."""
     if os.path.exists(ARCHIVO_DATOS):
