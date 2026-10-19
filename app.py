@@ -35,34 +35,39 @@ def redondear_precio(valor, paso=100):
         return 0
     return int(round(valor / paso) * paso)
 
+def obtener_costo_receta_sin_caja(receta, insumos):
+    """Calcula el costo de la receta considerando solo sus ingredientes y el 15% de gas/luz, ignorando su caja individual."""
+    c_ing = 0
+    for item in receta.get('ingredientes', []):
+        n_ing = item['nombre']
+        cant = item['cantidad']
+        if n_ing in insumos:
+            d = insumos[n_ing]
+            c_ing += (cant / d['paquete_cant']) * d['precio_compra']
+    
+    c_gas_luz = c_ing * 0.15
+    return c_ing + c_gas_luz
+
 def recalcular_recetas(datos):
     insumos = datos.get('insumos', {})
     for receta in datos.get('recetas_guardadas', []):
-        c_ing = 0
-        for item in receta.get('ingredientes', []):
-            n_ing = item['nombre']
-            cant = item['cantidad']
-            if n_ing in insumos:
-                d = insumos[n_ing]
-                c_ing += (cant / d['paquete_cant']) * d['precio_compra']
+        c_base = obtener_costo_receta_sin_caja(receta, insumos)
         
-        # 15% de gas y luz sobre ingredientes
-        c_gas_luz = c_ing * 0.15
-        
-        # Costo de la caja seleccionada
+        # Costo de la caja individual si se vende sola
         nombre_caja = receta.get('caja_nombre', '')
         c_caja = 0
         if nombre_caja in insumos:
             d_caja = insumos[nombre_caja]
             c_caja = (1 / d_caja['paquete_cant']) * d_caja['precio_compra']
 
-        c_total = c_ing + c_gas_luz + c_caja
+        c_total = c_base + c_caja
         ganancia_calculada = c_total * (receta.get('porcentaje', 80) / 100)
         
         precio_venta_bruto = c_total + ganancia_calculada
         precio_venta_redondeado = redondear_precio(precio_venta_bruto, paso=100)
         ganancia_real = precio_venta_redondeado - c_total
         
+        receta['costo_sin_caja'] = int(c_base)
         receta['costo'] = int(c_total)
         receta['ganancia'] = int(ganancia_real)
         receta['precio_venta'] = precio_venta_redondeado
@@ -79,13 +84,15 @@ def recalcular_boxes(datos):
             cant_unidades = prod['cantidad']
             
             if receta_match:
-                costo_prods_box += receta_match['costo'] * cant_unidades
+                # Toma ÚNICAMENTE el costo de ingredientes + 15% gas/luz (SIN la caja individual de la receta)
+                costo_receta_sin_caja = obtener_costo_receta_sin_caja(receta_match, insumos)
+                costo_prods_box += costo_receta_sin_caja * cant_unidades
             elif prod['nombre'] in insumos:
                 d = insumos[prod['nombre']]
                 costo_item = (cant_unidades / d['paquete_cant']) * d['precio_compra']
                 costo_prods_box += costo_item
 
-        # Costo de la caja del box
+        # Costo de la caja principal del Box
         nombre_caja = box.get('caja_nombre', '')
         c_caja = 0
         if nombre_caja in insumos:
