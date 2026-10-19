@@ -679,13 +679,11 @@
         }
 
         function copiarPresupuestoMultiproducto() {
-            console.log("=== INICIO COTIZADOR MULTIPRODUCTO ===");
-        
             const renglones = document.querySelectorAll('#contenedor-cotizador-items .renglon-ingrediente');
             let itemsParaTexto = [];
             let totalGeneral = 0;
         
-            renglones.forEach((r, index) => {
+            renglones.forEach(r => {
                 const inputNombre = r.querySelector('.item-cotizar-nombre');
                 const inputCant = r.querySelector('.item-cotizar-cant');
                 
@@ -695,7 +693,7 @@
                 const cant = parseInt(inputCant.value || 1);
         
                 if (rawNombre && cant > 0) {
-                    // Limpieza directa de sufijos sin importar paréntesis finales
+                    // Limpieza de etiquetas
                     let cleanNombre = rawNombre
                         .replace(/\(Receta\)/gi, '')
                         .replace(/\(Box\)/gi, '')
@@ -704,15 +702,8 @@
         
                     let cleanNorm = normalizarTexto(cleanNombre);
         
-                    console.log(`\n--- Renglón ${index + 1} ---`);
-                    console.log("Raw original:", `"${rawNombre}"`);
-                    console.log("Limpio obtenido:", `"${cleanNombre}"`);
-                    console.log("Normalizado:", `"${cleanNorm}"`);
-        
-                    // 1. Buscar en Recetas Guardadas
+                    // Buscar en Recetas, Boxes o Insumos
                     const recetaMatch = recetasGuardadasJS.find(rec => normalizarTexto(rec.nombre) === cleanNorm);
-                    
-                    // 2. Buscar en Boxes Guardados
                     const boxMatch = boxesGuardadosJS.find(bx => normalizarTexto(bx.nombre) === cleanNorm);
         
                     let precioUnidad = 0;
@@ -733,10 +724,8 @@
                     if (precioUnidad > 0) {
                         const subtotal = precioUnidad * cant;
                         totalGeneral += subtotal;
-                        itemsParaTexto.push(`• ${cant}x ${nombreMostrar} ($${subtotal})`);
-                        console.log(`✅ Agregado: ${cant}x ${nombreMostrar} ($${subtotal})`);
-                    } else {
-                        console.error(`❌ Falló la búsqueda para: "${cleanNombre}" (Norm: "${cleanNorm}")`);
+                        // Formato limpio con guión separador
+                        itemsParaTexto.push(`• ${cant}x ${nombreMostrar} — $${subtotal.toLocaleString('es-AR')}`);
                     }
                 }
             });
@@ -746,16 +735,18 @@
                 return;
             }
         
-            let texto = `🎂 *Pastelería Evepe - Presupuesto* | *Momentos dulces* ✨\n\n`;
-            texto += `📋 *Detalle del pedido:*\n`;
+            // Armado del mensaje con la misma estética cálida
+            let texto = `🎂 *Pastelería Evepe* | *Momentos dulces* ✨\n\n`;
+            texto += `¡Hola! 👋 Te dejamos el detalle de tu presupuesto personalizado:\n\n`;
+            texto += `📋 *Detalle de la propuesta:*\n`;
             texto += itemsParaTexto.join('\n') + `\n\n`;
-            texto += `💵 *TOTAL ESTIMADO:* $${totalGeneral}\n\n`;
-            texto += `📲 *¡Consultanos para confirmar y reservar tu fecha!*`;
+            texto += `💵 *Total estimado:* $${totalGeneral.toLocaleString('es-AR')}\n\n`;
+            texto += `📩 *¡Escribinos para consultar disponibilidad y reservar tu fecha!* ❤️`;
         
             navigator.clipboard.writeText(texto).then(() => {
-                alert("¡Presupuesto consolidado copiado! Listo para pegar en WhatsApp.");
+                alert("¡Presupuesto consolidado copiado con éxito! Listo para enviar por WhatsApp.");
             }).catch(err => {
-                prompt("Copia este texto para enviarlo por WhatsApp:", texto);
+                prompt("Copiá este texto para enviarlo por WhatsApp:", texto);
             });
         }
 
