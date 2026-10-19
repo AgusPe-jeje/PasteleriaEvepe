@@ -209,6 +209,11 @@
             "precio_compra": 1500,
             "paquete_cant": 200,
             "unidad": "gr"
+        },
+        "Jugo": {
+            "precio_compra": 1600,
+            "paquete_cant": 1,
+            "unidad": "unidades"
         }
     },
     "recetas_guardadas": [
@@ -249,11 +254,13 @@
                 }
             ],
             "porcentaje": 50.0,
-            "costo": 5834,
-            "precio_venta": 8800,
-            "ganancia": 2965,
+            "costo": 7334,
+            "precio_venta": 11000,
+            "ganancia": 3665,
             "costo_sin_caja": 5834,
-            "caja_nombre": ""
+            "caja_nombre": "Caja Chica",
+            "costo_base": 5834,
+            "costo_caja": 1500
         },
         {
             "nombre": "Mini tarta de batata",
@@ -288,7 +295,9 @@
             "costo": 3457,
             "precio_venta": 5200,
             "ganancia": 1742,
-            "costo_sin_caja": 3457
+            "costo_sin_caja": 3457,
+            "costo_base": 3457,
+            "costo_caja": 0
         },
         {
             "nombre": "Mini tarta de membrillo",
@@ -323,7 +332,9 @@
             "costo": 3457,
             "precio_venta": 5200,
             "ganancia": 1742,
-            "costo_sin_caja": 3457
+            "costo_sin_caja": 3457,
+            "costo_base": 3457,
+            "costo_caja": 0
         },
         {
             "nombre": "Mini tarta de ricota",
@@ -362,7 +373,9 @@
             "costo": 4673,
             "precio_venta": 7000,
             "ganancia": 2326,
-            "costo_sin_caja": 4673
+            "costo_sin_caja": 4673,
+            "costo_base": 4673,
+            "costo_caja": 0
         },
         {
             "nombre": "Mini tarta tofi",
@@ -401,7 +414,9 @@
             "costo": 4846,
             "precio_venta": 7300,
             "ganancia": 2453,
-            "costo_sin_caja": 4846
+            "costo_sin_caja": 4846,
+            "costo_base": 4846,
+            "costo_caja": 0
         },
         {
             "nombre": "Medialunas jyq",
@@ -424,7 +439,9 @@
             "costo": 2369,
             "precio_venta": 4300,
             "ganancia": 1930,
-            "costo_sin_caja": 2369
+            "costo_sin_caja": 2369,
+            "costo_base": 2369,
+            "costo_caja": 0
         },
         {
             "nombre": "Alfajores",
@@ -455,9 +472,84 @@
             "costo": 3138,
             "precio_venta": 5600,
             "ganancia": 2461,
-            "costo_sin_caja": 3138
+            "costo_sin_caja": 3138,
+            "costo_base": 3138,
+            "costo_caja": 0
+        },
+        {
+            "nombre": "Medialunas",
+            "ingredientes": [
+                {
+                    "nombre": "Medialunas",
+                    "cantidad": 2.0
+                }
+            ],
+            "caja_nombre": "",
+            "costo_caja": 0,
+            "porcentaje": 50.0,
+            "costo": 1686,
+            "precio_venta": 2500,
+            "ganancia": 813,
+            "costo_base": 1686
         }
     ],
-    "boxes_guardados": [],
+    "boxes_guardados": [
+        {
+            "nombre": "Box Desayuno Salado",
+            "productos": [
+                {
+                    "nombre": "Mini torta",
+                    "cantidad": 1.0
+                },
+                {
+                    "nombre": "Sanguichitos De Miga",
+                    "cantidad": 4.0
+                },
+                {
+                    "nombre": "Medialunas jyq",
+                    "cantidad": 1.0
+                },
+                {
+                    "nombre": "Jugo",
+                    "cantidad": 1.0
+                }
+            ],
+            "caja_nombre": "Caja y Packaging",
+            "porcentaje": 50.0,
+            "costo": 18304,
+            "precio_venta": 27500,
+            "ganancia": 9195
+        },
+        {
+            "nombre": "Box Desayuno Dulce",
+            "productos": [
+                {
+                    "nombre": "Mini torta",
+                    "cantidad": 1.0
+                },
+                {
+                    "nombre": "Vasitos",
+                    "cantidad": 2.0
+                },
+                {
+                    "nombre": "Medialunas",
+                    "cantidad": 1.0
+                },
+                {
+                    "nombre": "Jugo",
+                    "cantidad": 1.0
+                },
+                {
+                    "nombre": "Alfajores",
+                    "cantidad": 1.0
+                }
+            ],
+            "caja_nombre": "Caja y Packaging",
+            "porcentaje": 50.0,
+            "costo": 17759,
+            "precio_venta": 26600,
+            "ganancia": 8840
+        }
+    ],
     "ventas": []
 }
