@@ -51,23 +51,33 @@ def obtener_costo_receta_sin_caja(receta, insumos):
 def recalcular_recetas(datos):
     insumos = datos.get('insumos', {})
     for receta in datos.get('recetas_guardadas', []):
-        c_base = obtener_costo_receta_sin_caja(receta, insumos)
+        c_ing = 0
+        for item in receta.get('ingredientes', []):
+            n_ing = item['nombre']
+            cant = item['cantidad']
+            if n_ing in insumos:
+                d = insumos[n_ing]
+                c_ing += (cant / d['paquete_cant']) * d['precio_compra']
         
-        # Costo de la caja individual si se vende sola
+        # 15% de gas y luz sobre ingredientes
+        c_gas_luz = c_ing * 0.15
+        
+        # Costo de la caja seleccionada
         nombre_caja = receta.get('caja_nombre', '')
         c_caja = 0
         if nombre_caja in insumos:
             d_caja = insumos[nombre_caja]
             c_caja = (1 / d_caja['paquete_cant']) * d_caja['precio_compra']
 
-        c_total = c_base + c_caja
+        c_total = c_ing + c_gas_luz + c_caja
         ganancia_calculada = c_total * (receta.get('porcentaje', 80) / 100)
         
         precio_venta_bruto = c_total + ganancia_calculada
         precio_venta_redondeado = redondear_precio(precio_venta_bruto, paso=100)
         ganancia_real = precio_venta_redondeado - c_total
         
-        receta['costo_sin_caja'] = int(c_base)
+        receta['costo_base'] = int(c_ing + c_gas_luz)
+        receta['costo_caja'] = int(c_caja)
         receta['costo'] = int(c_total)
         receta['ganancia'] = int(ganancia_real)
         receta['precio_venta'] = precio_venta_redondeado
@@ -160,28 +170,33 @@ def inicio():
         precio_sugerido = redondear_precio(precio_sugerido_bruto, paso=100)
         ganancia_mano_obra = precio_sugerido - costo_total
 
-        if 'accion_guardar' in request.form and nombre_receta.strip() and ingredientes_actuales:
-            receta_existente = next((r for r in recetas_guardadas if r['nombre'].lower() == nombre_receta.strip().lower()), None)
-            
-            if receta_existente:
-                receta_existente['ingredientes'] = ingredientes_actuales
-                receta_existente['porcentaje'] = porcentaje_ganancia
-                receta_existente['caja_nombre'] = caja_seleccionada
-            else:
-                recetas_guardadas.append({
-                    'nombre': nombre_receta.strip(),
-                    'ingredientes': ingredientes_actuales,
-                    'caja_nombre': caja_seleccionada,
-                    'porcentaje': porcentaje_ganancia,
-                    'costo': int(costo_total),
-                    'precio_venta': int(precio_sugerido),
-                    'ganancia': int(ganancia_mano_obra)
-                })
-            
-            recalcular_recetas(datos)
-            recalcular_boxes(datos)
-            guardar_datos(datos)
-            return redirect(url_for('inicio', paso=4))
+        # GUARDAR / ACTUALIZAR RECETA
+        receta_existente = next((r for r in recetas_guardadas if r['nombre'].lower() == nombre_receta.strip().lower()), None)
+        
+        if receta_existente:
+            receta_existente['ingredientes'] = ingredientes_actuales
+            receta_existente['porcentaje'] = porcentaje_ganancia
+            receta_existente['caja_nombre'] = caja_seleccionada
+            receta_existente['costo_caja'] = int(costo_caja)
+            receta_existente['costo'] = int(costo_total)
+            receta_existente['precio_venta'] = int(precio_sugerido)
+            receta_existente['ganancia'] = int(ganancia_mano_obra)
+        else:
+            recetas_guardadas.append({
+                'nombre': nombre_receta.strip(),
+                'ingredientes': ingredientes_actuales,
+                'caja_nombre': caja_seleccionada,
+                'costo_caja': int(costo_caja),
+                'porcentaje': porcentaje_ganancia,
+                'costo': int(costo_total),
+                'precio_venta': int(precio_sugerido),
+                'ganancia': int(ganancia_mano_obra)
+            })
+        
+        recalcular_recetas(datos)
+        recalcular_boxes(datos)
+        guardar_datos(datos)
+        return redirect(url_for('inicio', paso=4))
 
     recalcular_recetas(datos)
     recalcular_boxes(datos)
