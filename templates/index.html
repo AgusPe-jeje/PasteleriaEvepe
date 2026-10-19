@@ -30,7 +30,7 @@
             <p class="subtxt">Anotá o modificá los precios del súper cuando cambien los costos:</p>
 
             <form method="POST" action="/nuevo_insumo" class="form-nuevo-insumo">
-                <input type="text" name="nuevo_nombre" placeholder="Nombre (ej: Frutillas)" required>
+                <input type="text" name="nuevo_nombre" placeholder="Nombre (ej: Frutillas / Caja 25x25)" required>
                 <input type="number" step="0.01" name="nuevo_precio" placeholder="Precio ($)" required>
                 <input type="number" step="0.01" name="nueva_cantidad" placeholder="Cantidad que trae" required>
                 <select name="nueva_unidad">
@@ -141,6 +141,15 @@
 
                 <button type="button" class="btn-sumar-renglon" onclick="agregarRenglonLive()">➕ Agregar otro ingrediente</button>
 
+                <!-- CAMPO APARTE PARA SELECCIONAR LA CAJA DE LA RECETA -->
+                <div class="campo-grande" style="margin-top: 15px; background-color: #fff9c4; padding: 12px; border-radius: 10px; border: 1px solid #fbc02d;">
+                    <label style="color: #f57f17;"><strong>📦 Caja / Packaging a utilizar (Opcional):</strong></label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                        <input type="text" name="caja_receta_nombre" id="caja_receta_input" list="lista-insumos-autocompletar" placeholder="🔍 Elegí la caja o bolsa de la despensa..." oninput="actualizarPreciosEnVivo()" style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid #fbc02d;">
+                        <span id="live-subtotal-caja-receta" style="font-weight: bold; color: #f57f17; font-size: 1rem; min-width: 80px; text-align: right;">+$0</span>
+                    </div>
+                </div>
+
                 <div class="campo-grande" style="margin-top: 15px;">
                     <label><strong>¿Cuánto querés ganar de mano de obra?</strong></label>
                     <select name="porcentaje_ganancia" onchange="actualizarPreciosEnVivo()" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px;">
@@ -154,8 +163,12 @@
                 <!-- RESUMEN EN VIVO MIENTRAS ARMAS LA RECETA -->
                 <div id="caja-resumen-vivo" style="background-color: #fcf4ff; border: 2px solid #ab47bc; border-radius: 12px; padding: 15px; margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 0.95rem; color: #4a148c;">🛒 Costo Ingredientes en vivo:</span>
+                        <span style="font-size: 0.95rem; color: #4a148c;">🛒 Costo Ingredientes:</span>
                         <strong id="live-costo-ingredientes" style="font-size: 1.1rem; color: #4a148c;">$0</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 0.95rem; color: #f57f17;">📦 Caja / Packaging:</span>
+                        <strong id="live-costo-caja-resumen" style="font-size: 1.1rem; color: #f57f17;">$0</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <span style="font-size: 0.95rem; color: #4a148c;">💡 Gas y Luz (15%):</span>
@@ -185,8 +198,13 @@
                     <div class="item-desglose">
                         <span>🛒 <strong>Ingredientes:</strong> ${{ costo_ingredientes }}</span>
                     </div>
+                    {% if costo_caja > 0 %}
                     <div class="item-desglose">
-                        <span>💡 <strong>Gas, Luz y Caja (15%):</strong> ${{ gastos_extras }}</span>
+                        <span>📦 <strong>Caja / Packaging:</strong> ${{ costo_caja }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="item-desglose">
+                        <span>💡 <strong>Gas y Luz (15%):</strong> ${{ gastos_extras }}</span>
                     </div>
                     <div class="item-desglose destacado">
                         <span>👩‍🍳 <strong>Tu Mano de Obra / Ganancia Limpia:</strong> ${{ ganancia_mano_obra }}</span>
@@ -244,6 +262,15 @@
 
                 <button type="button" class="btn-sumar-renglon" onclick="agregarRenglonBoxLive()">➕ Agregar otro producto al Box</button>
 
+                <!-- CAMPO APARTE PARA SELECCIONAR LA CAJA DEL BOX -->
+                <div class="campo-grande" style="margin-top: 15px; background-color: #fff9c4; padding: 12px; border-radius: 10px; border: 1px solid #fbc02d;">
+                    <label style="color: #f57f17;"><strong>📦 Caja / Contenedor del Box (Opcional):</strong></label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                        <input type="text" name="caja_box_nombre" id="caja_box_input" list="lista-combos-autocompletar" placeholder="🔍 Elegí la caja principal de la despensa..." oninput="actualizarPreciosBoxEnVivo()" style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid #fbc02d;">
+                        <span id="live-subtotal-caja-box" style="font-weight: bold; color: #f57f17; font-size: 1rem; min-width: 80px; text-align: right;">+$0</span>
+                    </div>
+                </div>
+
                 <div class="campo-grande" style="margin-top: 15px;">
                     <label><strong>¿Qué porcentaje de ganancia querés sumarle al Box?</strong></label>
                     <select name="porcentaje_ganancia_box" onchange="actualizarPreciosBoxEnVivo()" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px;">
@@ -257,8 +284,12 @@
                 <!-- RESUMEN EN VIVO MIENTRAS ARMAS EL BOX -->
                 <div id="caja-resumen-box-vivo" style="background-color: #fcf4ff; border: 2px solid #ab47bc; border-radius: 12px; padding: 15px; margin-top: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 0.95rem; color: #4a148c;">📦 Costo de Productos en vivo:</span>
-                        <strong id="live-costo-box" style="font-size: 1.1rem; color: #4a148c;">$0</strong>
+                        <span style="font-size: 0.95rem; color: #4a148c;">🍱 Costo de Productos en vivo:</span>
+                        <strong id="live-costo-box-prods" style="font-size: 1.1rem; color: #4a148c;">$0</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 0.95rem; color: #f57f17;">📦 Caja del Box:</span>
+                        <strong id="live-costo-caja-box-resumen" style="font-size: 1.1rem; color: #f57f17;">$0</strong>
                     </div>
                     <hr style="border: none; border-top: 1px dashed #ab47bc; margin: 8px 0;">
                     <div style="display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem;">
@@ -614,8 +645,21 @@
                 }
             });
 
+            // Cálculo caja de la receta
+            const inputCaja = document.getElementById('caja_receta_input');
+            let costoCaja = 0;
+            if (inputCaja) {
+                let cleanCaja = inputCaja.value.replace(/\s*\(en [^)]+\)\s*$/i, '').trim();
+                if (insumosJS[cleanCaja]) {
+                    const dCaja = insumosJS[cleanCaja];
+                    costoCaja = (1 / dCaja.paquete_cant) * dCaja.precio_compra;
+                }
+                const spanSubCaja = document.getElementById('live-subtotal-caja-receta');
+                if (spanSubCaja) spanSubCaja.innerText = `+$${Math.round(costoCaja).toLocaleString('es-AR')}`;
+            }
+
             const gastosExtras = costoIngredientesTotal * 0.15;
-            const costoTotal = costoIngredientesTotal + gastosExtras;
+            const costoTotal = costoIngredientesTotal + gastosExtras + costoCaja;
 
             const selectGanancia = document.querySelector('select[name="porcentaje_ganancia"]');
             const porcentaje = parseFloat(selectGanancia ? selectGanancia.value : 80) || 80;
@@ -625,10 +669,12 @@
             const precioSugerido = redondearPrecioJS(precioSugeridoBruto, 100);
 
             const elemIng = document.getElementById('live-costo-ingredientes');
+            const elemCajaRes = document.getElementById('live-costo-caja-resumen');
             const elemExt = document.getElementById('live-gastos-extras');
             const elemSug = document.getElementById('live-precio-sugerido');
 
             if (elemIng) elemIng.innerText = `$${Math.round(costoIngredientesTotal).toLocaleString('es-AR')}`;
+            if (elemCajaRes) elemCajaRes.innerText = `$${Math.round(costoCaja).toLocaleString('es-AR')}`;
             if (elemExt) elemExt.innerText = `$${Math.round(gastosExtras).toLocaleString('es-AR')}`;
             if (elemSug) elemSug.innerText = `$${precioSugerido.toLocaleString('es-AR')}`;
         }
@@ -636,7 +682,7 @@
         // CÁLCULO EN VIVO DE BOXES (PESTAÑA 3)
         function actualizarPreciosBoxEnVivo() {
             const renglones = document.querySelectorAll('#contenedor-box-items .renglon-ingrediente');
-            let costoBoxTotal = 0;
+            let costoProdsBoxTotal = 0;
 
             renglones.forEach(r => {
                 const inputNombre = r.querySelector('input[name="box_prod_nombre[]"]');
@@ -665,24 +711,45 @@
                 }
 
                 const subtotal = costoUnitario * cantidad;
-                costoBoxTotal += subtotal;
+                costoProdsBoxTotal += subtotal;
 
                 if (spanSubtotal) {
                     spanSubtotal.innerText = `$${Math.round(subtotal).toLocaleString('es-AR')}`;
                 }
             });
 
+            // Cálculo caja del Box
+            const inputCajaBox = document.getElementById('caja_box_input');
+            let costoCajaBox = 0;
+            if (inputCajaBox) {
+                let cleanCajaBox = inputCajaBox.value
+                    .replace(/\(Insumo Suelto\)/gi, '')
+                    .replace(/\s*\(en [^)]+\)\s*$/i, '')
+                    .trim();
+
+                if (insumosJS[cleanCajaBox]) {
+                    const dCaja = insumosJS[cleanCajaBox];
+                    costoCajaBox = (1 / dCaja.paquete_cant) * dCaja.precio_compra;
+                }
+                const spanSubCajaBox = document.getElementById('live-subtotal-caja-box');
+                if (spanSubCajaBox) spanSubCajaBox.innerText = `+$${Math.round(costoCajaBox).toLocaleString('es-AR')}`;
+            }
+
+            const costoTotalBox = costoProdsBoxTotal + costoCajaBox;
+
             const selectGanancia = document.querySelector('select[name="porcentaje_ganancia_box"]');
             const porcentaje = parseFloat(selectGanancia ? selectGanancia.value : 50) || 50;
 
-            const gananciaCalculada = costoBoxTotal * (porcentaje / 100);
-            const precioVentaBruto = costoBoxTotal + gananciaCalculada;
+            const gananciaCalculada = costoTotalBox * (porcentaje / 100);
+            const precioVentaBruto = costoTotalBox + gananciaCalculada;
             const precioVentaRedondeado = redondearPrecioJS(precioVentaBruto, 100);
 
-            const elemCosto = document.getElementById('live-costo-box');
+            const elemProds = document.getElementById('live-costo-box-prods');
+            const elemCajaRes = document.getElementById('live-costo-caja-box-resumen');
             const elemPrecio = document.getElementById('live-precio-box');
 
-            if (elemCosto) elemCosto.innerText = `$${Math.round(costoBoxTotal).toLocaleString('es-AR')}`;
+            if (elemProds) elemProds.innerText = `$${Math.round(costoProdsBoxTotal).toLocaleString('es-AR')}`;
+            if (elemCajaRes) elemCajaRes.innerText = `$${Math.round(costoCajaBox).toLocaleString('es-AR')}`;
             if (elemPrecio) elemPrecio.innerText = `$${precioVentaRedondeado.toLocaleString('es-AR')}`;
         }
 
@@ -757,6 +824,11 @@
             const receta = recetasGuardadasJS[index];
             document.getElementById('nombre_receta_input').value = receta.nombre;
 
+            const inputCaja = document.getElementById('caja_receta_input');
+            if (inputCaja && receta.caja_nombre) {
+                inputCaja.value = insumosJS[receta.caja_nombre] ? `${receta.caja_nombre} (en ${insumosJS[receta.caja_nombre].unidad})` : receta.caja_nombre;
+            }
+
             const selectGanancia = document.querySelector('select[name="porcentaje_ganancia"]');
             if (selectGanancia && receta.porcentaje) {
                 selectGanancia.value = receta.porcentaje;
@@ -792,6 +864,11 @@
 
             const box = boxesGuardadosJS[index];
             document.getElementById('nombre_box_input').value = box.nombre;
+
+            const inputCajaBox = document.getElementById('caja_box_input');
+            if (inputCajaBox && box.caja_nombre) {
+                inputCajaBox.value = insumosJS[box.caja_nombre] ? `${box.caja_nombre} (Insumo Suelto)` : box.caja_nombre;
+            }
 
             const selectGanancia = document.querySelector('select[name="porcentaje_ganancia_box"]');
             if (selectGanancia && box.porcentaje) {
