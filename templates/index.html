@@ -693,20 +693,36 @@
                 const cant = parseInt(inputCant.value || 1);
         
                 if (rawNombre && cant > 0) {
-                    // Remueve la etiqueta final "(Receta)" o "(Box)" ignorando espacios
-                    let cleanNombre = rawNombre.replace(/\s*\((Receta\vert{}Box)\)\s*$/i, '').trim();
+                    // Remueve la etiqueta final "(Receta)", "(Box)" o "(Insumo Suelto)"
+                    let cleanNombre = rawNombre.replace(/\s*\((Receta\vert{}Box\vert{}Insumo Suelto)\)\s*$/i, '').trim();
                     let cleanNorm = normalizarTexto(cleanNombre);
         
-                    // Busca coincidencia en recetas guardadas o boxes
+                    // 1. Buscar en Recetas Guardadas
                     const recetaMatch = recetasGuardadasJS.find(rec => normalizarTexto(rec.nombre) === cleanNorm);
+                    
+                    // 2. Buscar en Boxes Guardados
                     const boxMatch = boxesGuardadosJS.find(bx => normalizarTexto(bx.nombre) === cleanNorm);
         
-                    const item = recetaMatch || boxMatch;
+                    let precioUnidad = 0;
+                    let nombreMostrar = "";
         
-                    if (item) {
-                        const subtotal = item.precio_venta * cant;
+                    if (recetaMatch) {
+                        precioUnidad = recetaMatch.precio_venta || 0;
+                        nombreMostrar = recetaMatch.nombre;
+                    } else if (boxMatch) {
+                        precioUnidad = boxMatch.precio_venta || 0;
+                        nombreMostrar = boxMatch.nombre;
+                    } else if (insumosJS[cleanNombre]) {
+                        // 3. Fallback para Insumos Sueltos
+                        const ins = insumosJS[cleanNombre];
+                        precioUnidad = ins.precio_compra;
+                        nombreMostrar = cleanNombre;
+                    }
+        
+                    if (precioUnidad > 0) {
+                        const subtotal = precioUnidad * cant;
                         totalGeneral += subtotal;
-                        itemsParaTexto.push(`• ${cant}x ${item.nombre} ($${subtotal})`);
+                        itemsParaTexto.push(`• ${cant}x ${nombreMostrar} ($${subtotal})`);
                     }
                 }
             });
