@@ -364,14 +364,22 @@
                     {% for r in recetas %}
                         <div class="card-guardada card-item-guardado" data-nombre="{{ r.nombre }}">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                <h3>{{ r.nombre }}</h3>
+                                <h3 style="margin: 0;">{{ r.nombre }}</h3>
                                 <form method="POST" action="/eliminar_receta/{{ loop.index0 }}" style="display:inline;">
                                     <button type="submit" class="btn-borrar-insumo" title="Eliminar receta">✕</button>
                                 </form>
                             </div>
-                            <p>Costo actual: <strong>${{ r.costo }}</strong></p>
-                            <p class="precio-destacado">Vender a: <strong>${{ r.precio_venta }}</strong></p>
-                            <small>Ganancia limpia: ${{ r.ganancia }}</small>
+                            
+                            <p style="margin: 8px 0 4px 0;">Costo Receta + Serv.: <strong>${{ r.costo - (r.costo_caja or 0) }}</strong></p>
+                            
+                            <p style="margin: 4px 0; color: #f57f17; font-size: 0.9rem;">
+                                📦 Caja: <strong>{% if r.caja_nombre %}{{ r.caja_nombre }} (+${{ r.costo_caja or 0 }}){% else %}Sin caja{% endif %}</strong>
+                            </p>
+            
+                            <p style="margin: 4px 0;">Costo Total: <strong>${{ r.costo }}</strong></p>
+                            <p class="precio-destacado" style="margin: 8px 0;">Vender a: <strong>${{ r.precio_venta }}</strong></p>
+                            <small style="color: #2e7d32; font-weight: bold;">Ganancia limpia: ${{ r.ganancia }}</small>
+            
                             <button type="button" 
                                     onclick="copiarPresupuesto('{{ r.nombre }}', '{{ r.precio_venta }}')" 
                                     class="btn-violeta" 
