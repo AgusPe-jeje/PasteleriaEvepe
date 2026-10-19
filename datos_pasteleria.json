@@ -26,7 +26,7 @@
             "unidad": "gr"
         },
         "Dulce de Leche Repostero": {
-            "precio_compra": 3800,
+            "precio_compra": 4100,
             "paquete_cant": 1000,
             "unidad": "gr"
         },
@@ -96,8 +96,8 @@
             "unidad": "gr"
         },
         "Crema Chantilly": {
-            "precio_compra": 8000,
-            "paquete_cant": 500,
+            "precio_compra": 12000,
+            "paquete_cant": 1000,
             "unidad": "gr"
         },
         "Leche": {
@@ -183,271 +183,7 @@
     },
     "recetas_guardadas": [
         {
-            "nombre": "Mini Tarta de Ricota",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 200.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 2.0
-                },
-                {
-                    "nombre": "Esencia de Vainilla",
-                    "cantidad": 5.0
-                },
-                {
-                    "nombre": "Ricota",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Almidón de Maíz (Maizena)",
-                    "cantidad": 10.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 4843,
-            "precio_venta": 8700,
-            "ganancia": 3856
-        },
-        {
-            "nombre": "Mini Tofi",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 1.0
-                },
-                {
-                    "nombre": "Esencia de Vainilla",
-                    "cantidad": 5.0
-                },
-                {
-                    "nombre": "Chocolate Semi-Amargo",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Dulce de Leche Repostero",
-                    "cantidad": 100.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 5734,
-            "precio_venta": 10300,
-            "ganancia": 4565
-        },
-        {
-            "nombre": "Mini Pastafrola (Batata)",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 75.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 75.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 75.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 1.0
-                },
-                {
-                    "nombre": "Batata",
-                    "cantidad": 50.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 2661,
-            "precio_venta": 4800,
-            "ganancia": 2138
-        },
-        {
-            "nombre": "Pastafrola (Batata)",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 200.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 200.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 200.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 2.0
-                },
-                {
-                    "nombre": "Batata",
-                    "cantidad": 300.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 7697,
-            "precio_venta": 13900,
-            "ganancia": 6202
-        },
-        {
-            "nombre": "Pastafrola (Membrillo)",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 200.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 200.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 200.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 2.0
-                },
-                {
-                    "nombre": "Membrillo",
-                    "cantidad": 300.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 7697,
-            "precio_venta": 13900,
-            "ganancia": 6202
-        },
-        {
-            "nombre": "Mini Pastafrola (Membrillo)",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 75.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 75.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 75.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 1.0
-                },
-                {
-                    "nombre": "Membrillo",
-                    "cantidad": 50.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 2661,
-            "precio_venta": 4800,
-            "ganancia": 2138
-        },
-        {
-            "nombre": "Tarta de Frutilla",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 1.0
-                },
-                {
-                    "nombre": "Frutillas / Fruta Fresca",
-                    "cantidad": 350.0
-                },
-                {
-                    "nombre": "Gelatina",
-                    "cantidad": 25.0
-                },
-                {
-                    "nombre": "Crema Chantilly",
-                    "cantidad": 400.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 13508,
-            "precio_venta": 24300,
-            "ganancia": 10791
-        },
-        {
-            "nombre": "Tarta de Durazno",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 1.0
-                },
-                {
-                    "nombre": "Lata De Durazno En Almibar",
-                    "cantidad": 250.0
-                },
-                {
-                    "nombre": "Crema Chantilly",
-                    "cantidad": 400.0
-                },
-                {
-                    "nombre": "Gelatina",
-                    "cantidad": 25.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 13020,
-            "precio_venta": 23400,
-            "ganancia": 10379
-        },
-        {
-            "nombre": "Tarta de Ricota",
+            "nombre": "Mini torta",
             "ingredientes": [
                 {
                     "nombre": "Harina Leudante Refinada",
@@ -455,44 +191,7 @@
                 },
                 {
                     "nombre": "Azúcar Común",
-                    "cantidad": 380.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 200.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 3.0
-                },
-                {
-                    "nombre": "Esencia de Vainilla",
-                    "cantidad": 10.0
-                },
-                {
-                    "nombre": "Ricota",
-                    "cantidad": 500.0
-                },
-                {
-                    "nombre": "Almidón de Maíz (Maizena)",
-                    "cantidad": 50.0
-                },
-                {
-                    "nombre": "Azúcar Impalpable",
-                    "cantidad": 50.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 13259,
-            "precio_venta": 23900,
-            "ganancia": 10640
-        },
-        {
-            "nombre": "Budín",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 500.0
+                    "cantidad": 100.0
                 },
                 {
                     "nombre": "Huevos",
@@ -500,134 +199,31 @@
                 },
                 {
                     "nombre": "Leche",
-                    "cantidad": 500.0
+                    "cantidad": 100.0
                 },
                 {
                     "nombre": "Aceite",
-                    "cantidad": 250.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 300.0
-                },
-                {
-                    "nombre": "Esencia de Vainilla",
-                    "cantidad": 20.0
-                }
-            ],
-            "porcentaje": 80.0,
-            "costo": 4943,
-            "precio_venta": 8900,
-            "ganancia": 3956
-        },
-        {
-            "nombre": "Tarta Tofi",
-            "ingredientes": [
-                {
-                    "nombre": "Harina Leudante Refinada",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 1.0
+                    "cantidad": 50.0
                 },
                 {
                     "nombre": "Esencia de Vainilla",
                     "cantidad": 5.0
                 },
                 {
-                    "nombre": "Chocolate Semi-Amargo",
-                    "cantidad": 300.0
+                    "nombre": "Dulce de Leche Repostero",
+                    "cantidad": 150.0
                 },
                 {
-                    "nombre": "Dulce de Leche Repostero",
+                    "nombre": "Crema Chantilly",
                     "cantidad": 250.0
                 }
             ],
-            "porcentaje": 80.0,
-            "costo": 10530,
-            "precio_venta": 19000,
-            "ganancia": 8469
-        },
-        {
-            "nombre": "Alfajor de Maizena x3",
-            "ingredientes": [
-                {
-                    "nombre": "Harina 0000",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Almidón de Maíz (Maizena)",
-                    "cantidad": 50.0
-                },
-                {
-                    "nombre": "Azúcar Común",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Huevos",
-                    "cantidad": 1.0
-                },
-                {
-                    "nombre": "Manteca",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Dulce de Leche Repostero",
-                    "cantidad": 100.0
-                },
-                {
-                    "nombre": "Coco Rallado",
-                    "cantidad": 50.0
-                }
-            ],
             "porcentaje": 50.0,
-            "costo": 5107,
-            "precio_venta": 7700,
-            "ganancia": 2592
+            "costo": 5834,
+            "precio_venta": 8800,
+            "ganancia": 2965
         }
     ],
-    "boxes_guardados": [
-        {
-            "nombre": "Box Desayuno mixto",
-            "porcentaje": 50.0,
-            "productos": [
-                { "nombre": "Mini torta", "cantidad": 1.0 },
-                { "nombre": "Medialunas", "cantidad": 2.0 },
-                { "nombre": "Jugó Chiquito", "cantidad": 1.0 },
-                { "nombre": "Alfajor de Maizena x3", "cantidad": 1.0 },
-                { "nombre": "Sanguichitos De Miga", "cantidad": 2.0 }
-            ]
-        },
-        {
-            "nombre": "Box Desayuno dulce",
-            "porcentaje": 50.0,
-            "productos": [
-                { "nombre": "Mini torta", "cantidad": 1.0 },
-                { "nombre": "Medialunas", "cantidad": 2.0 },
-                { "nombre": "Alfajor de Maizena x3", "cantidad": 1.0 },
-                { "nombre": "Vasito Shot", "cantidad": 1.0 },
-                { "nombre": "Jugó Chiquito", "cantidad": 1.0 }
-            ]
-        },
-        {
-            "nombre": "Box Desayuno salado",
-            "porcentaje": 50.0,
-            "productos": [
-                { "nombre": "Mini torta", "cantidad": 1.0 },
-                { "nombre": "Medialunas", "cantidad": 2.0 },
-                { "nombre": "Jugó Chiquito", "cantidad": 1.0 },
-                { "nombre": "Sanguichitos De Miga", "cantidad": 4.0 }
-            ]
-        }
-    ],
+    "boxes_guardados": [],
     "ventas": []
 }
