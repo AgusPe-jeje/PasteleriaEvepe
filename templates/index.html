@@ -122,26 +122,28 @@
                 <div id="contenedor-ingredientes">
                     {% if ingredientes_actuales %}
                         {% for item in ingredientes_actuales %}
-                            <div class="renglon-ingrediente">
-                                <input type="text" name="ingrediente_nombre[]" list="lista-insumos-autocompletar" placeholder="🔍 Buscar ingrediente..." value="{% if item.nombre in insumos %}{{ item.nombre }} (en {{ insumos[item.nombre].unidad }}){% else %}{{ item.nombre }}{% endif %}" required style="flex: 2;">
-                                <input type="number" step="0.01" name="ingrediente_cantidad[]" value="{{ item.cantidad }}" placeholder="¿Cuánto usás?" required style="flex: 1;">
-                                <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                            <div class="renglon-ingrediente" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                                <input type="text" name="ingrediente_nombre[]" list="lista-insumos-autocompletar" placeholder="🔍 Buscar ingrediente..." value="{% if item.nombre in insumos %}{{ item.nombre }} (en {{ insumos[item.nombre].unidad }}){% else %}{{ item.nombre }}{% endif %}" oninput="actualizarPreciosEnVivo()" required style="flex: 2; min-width: 180px;">
+                                <input type="number" step="0.01" name="ingrediente_cantidad[]" value="{{ item.cantidad }}" placeholder="¿Cuánto usás?" oninput="actualizarPreciosEnVivo()" required style="flex: 1; min-width: 90px;">
+                                <span class="subtotal-ingrediente" style="font-size: 0.9rem; font-weight: bold; color: #6a1b9a; min-width: 75px; text-align: right;">$0</span>
+                                <button type="button" class="btn-borrar" onclick="borrarRenglonLive(this)">❌</button>
                             </div>
                         {% endfor %}
                     {% else %}
-                        <div class="renglon-ingrediente">
-                            <input type="text" name="ingrediente_nombre[]" list="lista-insumos-autocompletar" placeholder="🔍 Buscar ingrediente..." required style="flex: 2;">
-                            <input type="number" step="0.01" name="ingrediente_cantidad[]" placeholder="¿Cuánto usás?" required style="flex: 1;">
-                            <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                        <div class="renglon-ingrediente" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                            <input type="text" name="ingrediente_nombre[]" list="lista-insumos-autocompletar" placeholder="🔍 Buscar ingrediente..." oninput="actualizarPreciosEnVivo()" required style="flex: 2; min-width: 180px;">
+                            <input type="number" step="0.01" name="ingrediente_cantidad[]" placeholder="¿Cuánto usás?" oninput="actualizarPreciosEnVivo()" required style="flex: 1; min-width: 90px;">
+                            <span class="subtotal-ingrediente" style="font-size: 0.9rem; font-weight: bold; color: #6a1b9a; min-width: 75px; text-align: right;">$0</span>
+                            <button type="button" class="btn-borrar" onclick="borrarRenglonLive(this)">❌</button>
                         </div>
                     {% endif %}
                 </div>
 
-                <button type="button" class="btn-sumar-renglon" onclick="agregarRenglon()">➕ Agregar otro ingrediente</button>
+                <button type="button" class="btn-sumar-renglon" onclick="agregarRenglonLive()">➕ Agregar otro ingrediente</button>
 
                 <div class="campo-grande" style="margin-top: 15px;">
                     <label><strong>¿Cuánto querés ganar de mano de obra?</strong></label>
-                    <select name="porcentaje_ganancia" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px;">
+                    <select name="porcentaje_ganancia" onchange="actualizarPreciosEnVivo()" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px;">
                         <option value="50" {% if porcentaje_ganancia == 50 %}selected{% endif %}>Tranquilo (50% de ganancia)</option>
                         <option value="80" {% if porcentaje_ganancia == 80 %}selected{% endif %}>Estándar (80% de ganancia) - Recomendado</option>
                         <option value="100" {% if porcentaje_ganancia == 100 %}selected{% endif %}>Duplicar costo (100% de ganancia)</option>
@@ -149,8 +151,25 @@
                     </select>
                 </div>
 
+                <!-- RESUMEN EN VIVO MIENTRAS ARMAS LA RECETA -->
+                <div id="caja-resumen-vivo" style="background-color: #fcf4ff; border: 2px solid #ab47bc; border-radius: 12px; padding: 15px; margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 0.95rem; color: #4a148c;">🛒 Costo Ingredientes en vivo:</span>
+                        <strong id="live-costo-ingredientes" style="font-size: 1.1rem; color: #4a148c;">$0</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 0.95rem; color: #4a148c;">💡 Gas, Luz y Caja (15%):</span>
+                        <strong id="live-gastos-extras" style="font-size: 1.1rem; color: #4a148c;">$0</strong>
+                    </div>
+                    <hr style="border: none; border-top: 1px dashed #ab47bc; margin: 8px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem;">
+                        <span style="font-weight: bold; color: #2e7d32;">🏷️ PRECIO SUGERIDO VIVO:</span>
+                        <strong id="live-precio-sugerido" style="font-size: 1.4rem; color: #2e7d32;">$0</strong>
+                    </div>
+                </div>
+
                 <div class="botones-accion" style="margin-top: 20px;">
-                    <button type="submit" name="accion_calcular" class="btn-verde-gigante">🧮 CALCULAR PRECIO DE LA RECETA</button>
+                    <button type="submit" name="accion_calcular" class="btn-verde-gigante">🧮 CALCULAR / GUARDAR RECETA</button>
                 </div>
             </form>
 
@@ -536,12 +555,81 @@
             }
         }
 
-        function agregarRenglon() {
+        function redondearPrecioJS(valor, paso = 100) {
+            if (valor <= 0) return 0;
+            return Math.round(valor / paso) * paso;
+        }
+
+        function actualizarPreciosEnVivo() {
+            const renglones = document.querySelectorAll('#contenedor-ingredientes .renglon-ingrediente');
+            let costoIngredientesTotal = 0;
+
+            renglones.forEach(r => {
+                const inputNombre = r.querySelector('input[name="ingrediente_nombre[]"]');
+                const inputCant = r.querySelector('input[name="ingrediente_cantidad[]"]');
+                const spanSubtotal = r.querySelector('.subtotal-ingrediente');
+
+                if (!inputNombre || !inputCant) return;
+
+                let rawNombre = inputNombre.value.trim();
+                let cantidad = parseFloat(inputCant.value) || 0;
+
+                let cleanNombre = rawNombre.replace(/\s*\(en [^)]+\)\s*$/i, '').trim();
+
+                let costoItem = 0;
+
+                if (insumosJS[cleanNombre] && cantidad > 0) {
+                    const d = insumosJS[cleanNombre];
+                    costoItem = (cantidad / d.paquete_cant) * d.precio_compra;
+                }
+
+                costoIngredientesTotal += costoItem;
+
+                if (spanSubtotal) {
+                    spanSubtotal.innerText = `$${Math.round(costoItem).toLocaleString('es-AR')}`;
+                }
+            });
+
+            const gastosExtras = costoIngredientesTotal * 0.15;
+            const costoTotal = costoIngredientesTotal + gastosExtras;
+
+            const selectGanancia = document.querySelector('select[name="porcentaje_ganancia"]');
+            const porcentaje = parseFloat(selectGanancia ? selectGanancia.value : 80) || 80;
+
+            const gananciaManoObraBruta = costoTotal * (porcentaje / 100);
+            const precioSugeridoBruto = costoTotal + gananciaManoObraBruta;
+            const precioSugerido = redondearPrecioJS(precioSugeridoBruto, 100);
+
+            const elemIng = document.getElementById('live-costo-ingredientes');
+            const elemExt = document.getElementById('live-gastos-extras');
+            const elemSug = document.getElementById('live-precio-sugerido');
+
+            if (elemIng) elemIng.innerText = `$${Math.round(costoIngredientesTotal).toLocaleString('es-AR')}`;
+            if (elemExt) elemExt.innerText = `$${Math.round(gastosExtras).toLocaleString('es-AR')}`;
+            if (elemSug) elemSug.innerText = `$${precioSugerido.toLocaleString('es-AR')}`;
+        }
+
+        function agregarRenglonLive() {
             const contenedor = document.getElementById('contenedor-ingredientes');
             const primerRenglon = contenedor.querySelector('.renglon-ingrediente');
             const nuevoRenglon = primerRenglon.cloneNode(true);
+            
             nuevoRenglon.querySelectorAll('input').forEach(input => input.value = "");
+            const spanSub = nuevoRenglon.querySelector('.subtotal-ingrediente');
+            if (spanSub) spanSub.innerText = "$0";
+
             contenedor.appendChild(nuevoRenglon);
+            actualizarPreciosEnVivo();
+        }
+
+        function borrarRenglonLive(boton) {
+            const renglones = document.querySelectorAll('#contenedor-ingredientes .renglon-ingrediente');
+            if (renglones.length > 1) {
+                boton.parentElement.remove();
+                actualizarPreciosEnVivo();
+            } else {
+                alert("Tenés que dejar al menos un ingrediente.");
+            }
         }
 
         function agregarRenglonBox() {
@@ -588,6 +676,7 @@
             receta.ingredientes.forEach(item => {
                 const divRenglon = document.createElement('div');
                 divRenglon.className = 'renglon-ingrediente';
+                divRenglon.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;';
 
                 let valorMostrar = item.nombre;
                 if (insumosJS[item.nombre]) {
@@ -595,12 +684,15 @@
                 }
 
                 divRenglon.innerHTML = `
-                    <input type="text" name="ingrediente_nombre[]" list="lista-insumos-autocompletar" placeholder="🔍 Buscar ingrediente..." value="${valorMostrar}" required style="flex: 2;">
-                    <input type="number" step="0.01" name="ingrediente_cantidad[]" value="${item.cantidad}" placeholder="¿Cuánto usás?" required style="flex: 1;">
-                    <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                    <input type="text" name="ingrediente_nombre[]" list="lista-insumos-autocompletar" placeholder="🔍 Buscar ingrediente..." value="${valorMostrar}" oninput="actualizarPreciosEnVivo()" required style="flex: 2; min-width: 180px;">
+                    <input type="number" step="0.01" name="ingrediente_cantidad[]" value="${item.cantidad}" placeholder="¿Cuánto usás?" oninput="actualizarPreciosEnVivo()" required style="flex: 1; min-width: 90px;">
+                    <span class="subtotal-ingrediente" style="font-size: 0.9rem; font-weight: bold; color: #6a1b9a; min-width: 75px; text-align: right;">$0</span>
+                    <button type="button" class="btn-borrar" onclick="borrarRenglonLive(this)">❌</button>
                 `;
                 contenedor.appendChild(divRenglon);
             });
+
+            actualizarPreciosEnVivo();
         }
 
         function cargarBoxSeleccionado(index) {
@@ -682,33 +774,31 @@
             const renglones = document.querySelectorAll('#contenedor-cotizador-items .renglon-ingrediente');
             let itemsParaTexto = [];
             let totalGeneral = 0;
-        
+
             renglones.forEach(r => {
                 const inputNombre = r.querySelector('.item-cotizar-nombre');
                 const inputCant = r.querySelector('.item-cotizar-cant');
                 
                 if (!inputNombre || !inputCant) return;
-        
+
                 let rawNombre = inputNombre.value.trim();
                 const cant = parseInt(inputCant.value || 1);
-        
+
                 if (rawNombre && cant > 0) {
-                    // Limpieza de etiquetas
                     let cleanNombre = rawNombre
                         .replace(/\(Receta\)/gi, '')
                         .replace(/\(Box\)/gi, '')
                         .replace(/\(Insumo Suelto\)/gi, '')
                         .trim();
-        
+
                     let cleanNorm = normalizarTexto(cleanNombre);
-        
-                    // Buscar en Recetas, Boxes o Insumos
+
                     const recetaMatch = recetasGuardadasJS.find(rec => normalizarTexto(rec.nombre) === cleanNorm);
                     const boxMatch = boxesGuardadosJS.find(bx => normalizarTexto(bx.nombre) === cleanNorm);
-        
+
                     let precioUnidad = 0;
                     let nombreMostrar = "";
-        
+
                     if (recetaMatch) {
                         precioUnidad = recetaMatch.precio_venta || 0;
                         nombreMostrar = recetaMatch.nombre;
@@ -720,29 +810,27 @@
                         precioUnidad = ins.precio_compra;
                         nombreMostrar = cleanNombre;
                     }
-        
+
                     if (precioUnidad > 0) {
                         const subtotal = precioUnidad * cant;
                         totalGeneral += subtotal;
-                        // Formato limpio con guión separador
                         itemsParaTexto.push(`• ${cant}x ${nombreMostrar} — $${subtotal.toLocaleString('es-AR')}`);
                     }
                 }
             });
-        
+
             if (itemsParaTexto.length === 0) {
                 alert("Por favor elegí al menos un producto válido para cotizar.");
                 return;
             }
-        
-            // Armado del mensaje con la misma estética cálida
+
             let texto = `🎂 *Pastelería Evepe* | *Momentos dulces* ✨\n\n`;
             texto += `¡Hola! 👋 Te dejamos el detalle de tu presupuesto personalizado:\n\n`;
             texto += `📋 *Detalle de la propuesta:*\n`;
             texto += itemsParaTexto.join('\n') + `\n\n`;
             texto += `💵 *Total estimado:* $${totalGeneral.toLocaleString('es-AR')}\n\n`;
             texto += `📩 *¡Escribinos para consultar disponibilidad y reservar tu fecha!* ❤️`;
-        
+
             navigator.clipboard.writeText(texto).then(() => {
                 alert("¡Presupuesto consolidado copiado con éxito! Listo para enviar por WhatsApp.");
             }).catch(err => {
@@ -750,16 +838,20 @@
             });
         }
 
-        // CONTROL DE NAVEGACIÓN POR PARÁMETROS URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const pasoUrl = urlParams.get('paso');
-        const precioSugerido = Number("{{ precio_sugerido or 0 }}");
+        // CONTROL DE NAVEGACIÓN Y CÁLCULOS AL CARGAR
+        document.addEventListener('DOMContentLoaded', () => {
+            actualizarPreciosEnVivo();
 
-        if (pasoUrl) {
-            mostrarPaso(Number(pasoUrl));
-        } else if (precioSugerido > 0) {
-            mostrarPaso(2);
-        }
+            const urlParams = new URLSearchParams(window.location.search);
+            const pasoUrl = urlParams.get('paso');
+            const precioSugerido = Number("{{ precio_sugerido or 0 }}");
+
+            if (pasoUrl) {
+                mostrarPaso(Number(pasoUrl));
+            } else if (precioSugerido > 0) {
+                mostrarPaso(2);
+            }
+        });
     </script>
 
 </body>
