@@ -596,38 +596,38 @@
         }
     ],
     "boxes_guardados": [
-    {
-        "nombre": "Box Desayuno mixto",
-        "porcentaje": 50.0,
-        "productos": [
-            { "nombre": "Mini torta", "cantidad": 1.0 },
-            { "nombre": "Medialunas", "cantidad": 2.0 },
-            { "nombre": "Jugó Chiquito", "cantidad": 1.0 },
-            { "nombre": "Alfajor de Maizena x3", "cantidad": 1.0 },
-            { "nombre": "Sanguichitos De Miga", "cantidad": 2.0 }
-        ]
-    },
-    {
-        "nombre": "Box Desayuno dulce",
-        "porcentaje": 50.0,
-        "productos": [
-            { "nombre": "Mini torta", "cantidad": 1.0 },
-            { "nombre": "Medialunas", "cantidad": 2.0 },
-            { "nombre": "Alfajor de Maizena x3", "cantidad": 1.0 },
-            { "nombre": "Vasito Shot", "cantidad": 1.0 },
-            { "nombre": "Jugó Chiquito", "cantidad": 1.0 }
-        ]
-    },
-    {
-        "nombre": "Box Desayuno salado",
-        "porcentaje": 50.0,
-        "productos": [
-            { "nombre": "Mini torta", "cantidad": 1.0 },
-            { "nombre": "Medialunas", "cantidad": 2.0 },
-            { "nombre": "Jugó Chiquito", "cantidad": 1.0 },
-            { "nombre": "Sanguichitos De Miga", "cantidad": 4.0 }
-        ]
-    }
-]
+        {
+            "nombre": "Box Desayuno mixto",
+            "porcentaje": 50.0,
+            "productos": [
+                { "nombre": "Mini torta", "cantidad": 1.0 },
+                { "nombre": "Medialunas", "cantidad": 2.0 },
+                { "nombre": "Jugó Chiquito", "cantidad": 1.0 },
+                { "nombre": "Alfajor de Maizena x3", "cantidad": 1.0 },
+                { "nombre": "Sanguichitos De Miga", "cantidad": 2.0 }
+            ]
+        },
+        {
+            "nombre": "Box Desayuno dulce",
+            "porcentaje": 50.0,
+            "productos": [
+                { "nombre": "Mini torta", "cantidad": 1.0 },
+                { "nombre": "Medialunas", "cantidad": 2.0 },
+                { "nombre": "Alfajor de Maizena x3", "cantidad": 1.0 },
+                { "nombre": "Vasito Shot", "cantidad": 1.0 },
+                { "nombre": "Jugó Chiquito", "cantidad": 1.0 }
+            ]
+        },
+        {
+            "nombre": "Box Desayuno salado",
+            "porcentaje": 50.0,
+            "productos": [
+                { "nombre": "Mini torta", "cantidad": 1.0 },
+                { "nombre": "Medialunas", "cantidad": 2.0 },
+                { "nombre": "Jugó Chiquito", "cantidad": 1.0 },
+                { "nombre": "Sanguichitos De Miga", "cantidad": 4.0 }
+            ]
+        }
+    ],
     "ventas": []
 }
