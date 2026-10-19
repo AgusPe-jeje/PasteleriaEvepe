@@ -48,8 +48,9 @@ def recalcular_recetas(datos):
                 d = insumos[n_ing]
                 c_ing += (cant / d['paquete_cant']) * d['precio_compra']
         
-        c_extras = c_ing * 0.15
-        c_total = c_ing + c_extras
+        # 15% dedicado exclusivamente a Gas, Luz y Servicios Generales
+        c_gas_luz = c_ing * 0.15
+        c_total = c_ing + c_gas_luz
         ganancia_calculada = c_total * (receta.get('porcentaje', 80) / 100)
         
         precio_venta_bruto = c_total + ganancia_calculada
@@ -74,6 +75,7 @@ def recalcular_boxes(datos):
             if receta_match:
                 costo_total_box += receta_match['costo'] * cant_unidades
             elif prod['nombre'] in insumos:
+                # Insumo suelto o packaging/caja específica sumado a costo directo
                 d = insumos[prod['nombre']]
                 costo_item = (cant_unidades / d['paquete_cant']) * d['precio_compra']
                 costo_total_box += costo_item
@@ -121,7 +123,7 @@ def inicio():
                 costo_item = (cantidad / datos_insumo['paquete_cant']) * datos_insumo['precio_compra']
                 costo_ingredientes += costo_item
 
-        gastos_extras = costo_ingredientes * 0.15
+        gastos_extras = costo_ingredientes * 0.15  # Gas y Luz
         costo_total = costo_ingredientes + gastos_extras
         ganancia_mano_obra_bruta = costo_total * (porcentaje_ganancia / 100)
         precio_sugerido_bruto = costo_total + ganancia_mano_obra_bruta
@@ -154,13 +156,11 @@ def inicio():
     recalcular_boxes(datos)
     guardar_datos(datos)
 
-    # FILTRADO DE VENTAS POR MES SELECCIONADO
     mes_actual_str = datetime.now().strftime('%Y-%m')
     mes_seleccionado = request.args.get('mes_filtro', mes_actual_str)
 
     ventas_filtradas = [v for v in ventas if v.get('fecha', '').startswith(mes_seleccionado)]
 
-    # Cálculo de métricas financieras del mes seleccionado
     total_ingresos = sum(v['precio_total'] for v in ventas_filtradas)
     total_costos = sum(v['costo_total'] for v in ventas_filtradas)
     total_ganancia = sum(v['ganancia_total'] for v in ventas_filtradas)
@@ -193,7 +193,6 @@ def inicio():
 
 @app.route('/exportar_datos')
 def exportar_datos():
-    """Permite descargar una copia de seguridad actualizada de datos_pasteleria.json"""
     return send_file(
         ARCHIVO_DATOS,
         mimetype='application/json',
