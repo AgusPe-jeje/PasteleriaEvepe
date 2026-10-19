@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for
 
@@ -111,7 +112,8 @@ def inicio():
         porcentaje_ganancia = float(request.form.get('porcentaje_ganancia') or 80)
 
         for nombre_raw, cant in zip(nombres_usados, cantidades_usadas):
-            nombre = nombre_raw.split(' (en ')[0].strip() if ' (en ' in nombre_raw else nombre_raw.strip()
+            # Remueve únicamente la etiqueta final "(en unidad)"
+            nombre = re.sub(r'\s*\(en [^)]+\)\s*$', '', nombre_raw, flags=re.IGNORECASE).strip()
             
             if nombre in insumos and cant and float(cant) > 0:
                 cantidad = float(cant)
@@ -199,7 +201,8 @@ def nueva_venta():
     cantidad = int(request.form.get('cantidad', 1) or 1)
     fecha = request.form.get('fecha', datetime.now().strftime('%Y-%m-%d'))
 
-    producto_nombre = producto_raw.split(' (')[0].strip() if ' (' in producto_raw else producto_raw
+    # Remueve únicamente las etiquetas al final del string
+    producto_nombre = re.sub(r'\s*\((Receta|Box)\)\s*$', '', producto_raw, flags=re.IGNORECASE).strip()
 
     receta_match = next((r for r in recetas if r['nombre'].lower() == producto_nombre.lower()), None)
     box_match = next((b for b in boxes if b['nombre'].lower() == producto_nombre.lower()), None)
@@ -250,7 +253,8 @@ def nuevo_box():
 
     productos = []
     for p_nom, p_cant in zip(prod_nombres, prod_cantidades):
-        p_clean = p_nom.split(' (')[0].strip() if ' (' in p_nom else p_nom.strip()
+        # Remueve únicamente las etiquetas finales como "(Receta Guardada)" o "(Insumo Suelto)"
+        p_clean = re.sub(r'\s*\((Receta Guardada|Insumo Suelto)\)\s*$', '', p_nom, flags=re.IGNORECASE).strip()
         if p_clean and p_cant and float(p_cant) > 0:
             productos.append({'nombre': p_clean, 'cantidad': float(p_cant)})
 
