@@ -179,6 +179,36 @@
             "precio_compra": 4500,
             "paquete_cant": 200,
             "unidad": "gr"
+        },
+        "Caja Chica": {
+            "precio_compra": 1500,
+            "paquete_cant": 1,
+            "unidad": "unidades"
+        },
+        "Medialunas": {
+            "precio_compra": 8800,
+            "paquete_cant": 12,
+            "unidad": "unidades"
+        },
+        "Jamón": {
+            "precio_compra": 1980,
+            "paquete_cant": 100,
+            "unidad": "gr"
+        },
+        "Queso": {
+            "precio_compra": 1980,
+            "paquete_cant": 100,
+            "unidad": "gr"
+        },
+        "Vasitos": {
+            "precio_compra": 1500,
+            "paquete_cant": 1,
+            "unidad": "unidades"
+        },
+        "Bizcocho": {
+            "precio_compra": 1500,
+            "paquete_cant": 200,
+            "unidad": "gr"
         }
     },
     "recetas_guardadas": [
@@ -221,7 +251,211 @@
             "porcentaje": 50.0,
             "costo": 5834,
             "precio_venta": 8800,
-            "ganancia": 2965
+            "ganancia": 2965,
+            "costo_sin_caja": 5834,
+            "caja_nombre": ""
+        },
+        {
+            "nombre": "Mini tarta de batata",
+            "ingredientes": [
+                {
+                    "nombre": "Harina Leudante Refinada",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Manteca",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Azúcar Común",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Huevos",
+                    "cantidad": 1.0
+                },
+                {
+                    "nombre": "Esencia de Vainilla",
+                    "cantidad": 5.0
+                },
+                {
+                    "nombre": "Batata",
+                    "cantidad": 50.0
+                }
+            ],
+            "caja_nombre": "",
+            "porcentaje": 50.0,
+            "costo": 3457,
+            "precio_venta": 5200,
+            "ganancia": 1742,
+            "costo_sin_caja": 3457
+        },
+        {
+            "nombre": "Mini tarta de membrillo",
+            "ingredientes": [
+                {
+                    "nombre": "Harina Leudante Refinada",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Manteca",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Azúcar Común",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Huevos",
+                    "cantidad": 1.0
+                },
+                {
+                    "nombre": "Esencia de Vainilla",
+                    "cantidad": 5.0
+                },
+                {
+                    "nombre": "Membrillo",
+                    "cantidad": 50.0
+                }
+            ],
+            "caja_nombre": "",
+            "porcentaje": 50.0,
+            "costo": 3457,
+            "precio_venta": 5200,
+            "ganancia": 1742,
+            "costo_sin_caja": 3457
+        },
+        {
+            "nombre": "Mini tarta de ricota",
+            "ingredientes": [
+                {
+                    "nombre": "Harina Leudante Refinada",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Manteca",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Azúcar Común",
+                    "cantidad": 170.0
+                },
+                {
+                    "nombre": "Huevos",
+                    "cantidad": 2.0
+                },
+                {
+                    "nombre": "Esencia de Vainilla",
+                    "cantidad": 10.0
+                },
+                {
+                    "nombre": "Ricota",
+                    "cantidad": 80.0
+                },
+                {
+                    "nombre": "Almidón de Maíz (Maizena)",
+                    "cantidad": 20.0
+                }
+            ],
+            "caja_nombre": "",
+            "porcentaje": 50.0,
+            "costo": 4673,
+            "precio_venta": 7000,
+            "ganancia": 2326,
+            "costo_sin_caja": 4673
+        },
+        {
+            "nombre": "Mini tarta tofi",
+            "ingredientes": [
+                {
+                    "nombre": "Harina Leudante Refinada",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Manteca",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Azúcar Común",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Huevos",
+                    "cantidad": 1.0
+                },
+                {
+                    "nombre": "Esencia de Vainilla",
+                    "cantidad": 5.0
+                },
+                {
+                    "nombre": "Dulce de Leche Repostero",
+                    "cantidad": 80.0
+                },
+                {
+                    "nombre": "Chocolate Semi-Amargo",
+                    "cantidad": 60.0
+                }
+            ],
+            "caja_nombre": "",
+            "porcentaje": 50.0,
+            "costo": 4846,
+            "precio_venta": 7300,
+            "ganancia": 2453,
+            "costo_sin_caja": 4846
+        },
+        {
+            "nombre": "Medialunas jyq",
+            "ingredientes": [
+                {
+                    "nombre": "Medialunas",
+                    "cantidad": 2.0
+                },
+                {
+                    "nombre": "Jamón",
+                    "cantidad": 15.0
+                },
+                {
+                    "nombre": "Queso",
+                    "cantidad": 15.0
+                }
+            ],
+            "caja_nombre": "",
+            "porcentaje": 80.0,
+            "costo": 2369,
+            "precio_venta": 4300,
+            "ganancia": 1930,
+            "costo_sin_caja": 2369
+        },
+        {
+            "nombre": "Alfajores",
+            "ingredientes": [
+                {
+                    "nombre": "Harina 0000",
+                    "cantidad": 100.0
+                },
+                {
+                    "nombre": "Almidón de Maíz (Maizena)",
+                    "cantidad": 150.0
+                },
+                {
+                    "nombre": "Azúcar Común",
+                    "cantidad": 75.0
+                },
+                {
+                    "nombre": "Manteca",
+                    "cantidad": 75.0
+                },
+                {
+                    "nombre": "Huevos",
+                    "cantidad": 1.0
+                }
+            ],
+            "caja_nombre": "",
+            "porcentaje": 80.0,
+            "costo": 3138,
+            "precio_venta": 5600,
+            "ganancia": 2461,
+            "costo_sin_caja": 3138
         }
     ],
     "boxes_guardados": [],
