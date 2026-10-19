@@ -679,29 +679,46 @@
         }
 
         function copiarPresupuestoMultiproducto() {
+            console.log("=== INICIO COTIZADOR MULTIPRODUCTO ===");
+            console.log("Recetas disponibles en JS:", recetasGuardadasJS);
+            console.log("Boxes disponibles en JS:", boxesGuardadosJS);
+            console.log("Insumos disponibles en JS:", insumosJS);
+        
             const renglones = document.querySelectorAll('#contenedor-cotizador-items .renglon-ingrediente');
             let itemsParaTexto = [];
             let totalGeneral = 0;
         
-            renglones.forEach(r => {
+            renglones.forEach((r, index) => {
                 const inputNombre = r.querySelector('.item-cotizar-nombre');
                 const inputCant = r.querySelector('.item-cotizar-cant');
                 
-                if (!inputNombre || !inputCant) return;
+                if (!inputNombre || !inputCant) {
+                    console.warn(`Renglón ${index + 1}: No se encontraron los inputs de nombre o cantidad.`);
+                    return;
+                }
         
                 let rawNombre = inputNombre.value.trim();
                 const cant = parseInt(inputCant.value || 1);
+        
+                console.log(`\n--- Procesando Renglón ${index + 1} ---`);
+                console.log("Valor raw ingresado:", `"${rawNombre}"`);
+                console.log("Cantidad:", cant);
         
                 if (rawNombre && cant > 0) {
                     // Remueve la etiqueta final "(Receta)", "(Box)" o "(Insumo Suelto)"
                     let cleanNombre = rawNombre.replace(/\s*\((Receta\vert{}Box\vert{}Insumo Suelto)\)\s*$/i, '').trim();
                     let cleanNorm = normalizarTexto(cleanNombre);
         
+                    console.log("Nombre limpio extraído:", `"${cleanNombre}"`);
+                    console.log("Nombre normalizado para comparar:", `"${cleanNorm}"`);
+        
                     // 1. Buscar en Recetas Guardadas
                     const recetaMatch = recetasGuardadasJS.find(rec => normalizarTexto(rec.nombre) === cleanNorm);
-                    
                     // 2. Buscar en Boxes Guardados
                     const boxMatch = boxesGuardadosJS.find(bx => normalizarTexto(bx.nombre) === cleanNorm);
+        
+                    console.log("Match en Recetas:", recetaMatch);
+                    console.log("Match en Boxes:", boxMatch);
         
                     let precioUnidad = 0;
                     let nombreMostrar = "";
@@ -713,19 +730,28 @@
                         precioUnidad = boxMatch.precio_venta || 0;
                         nombreMostrar = boxMatch.nombre;
                     } else if (insumosJS[cleanNombre]) {
-                        // 3. Fallback para Insumos Sueltos
                         const ins = insumosJS[cleanNombre];
                         precioUnidad = ins.precio_compra;
                         nombreMostrar = cleanNombre;
+                        console.log("Match en Insumo suelto:", ins);
                     }
+        
+                    console.log("Precio unidad resuelto:", precioUnidad);
         
                     if (precioUnidad > 0) {
                         const subtotal = precioUnidad * cant;
                         totalGeneral += subtotal;
                         itemsParaTexto.push(`• ${cant}x ${nombreMostrar} ($${subtotal})`);
+                        console.log(`✅ Item agregado: ${cant}x ${nombreMostrar} ($${subtotal})`);
+                    } else {
+                        console.error(`❌ NO SE ENCONTRÓ PRECIO VÁLIDO PARA: "${cleanNombre}"`);
                     }
                 }
             });
+        
+            console.log("\nItems totales consolidados:", itemsParaTexto);
+            console.log("Total general estimado:", totalGeneral);
+            console.log("=== FIN COTIZADOR MULTIPRODUCTO ===");
         
             if (itemsParaTexto.length === 0) {
                 alert("Por favor elegí al menos un producto válido para cotizar.");
