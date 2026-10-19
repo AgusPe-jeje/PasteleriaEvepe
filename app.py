@@ -2,7 +2,7 @@ import os
 import json
 import re
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_file
 
 app = Flask(__name__)
 
@@ -112,7 +112,6 @@ def inicio():
         porcentaje_ganancia = float(request.form.get('porcentaje_ganancia') or 80)
 
         for nombre_raw, cant in zip(nombres_usados, cantidades_usadas):
-            # Remueve únicamente la etiqueta final "(en unidad)"
             nombre = re.sub(r'\s*\(en [^)]+\)\s*$', '', nombre_raw, flags=re.IGNORECASE).strip()
             
             if nombre in insumos and cant and float(cant) > 0:
@@ -149,6 +148,7 @@ def inicio():
             recalcular_recetas(datos)
             recalcular_boxes(datos)
             guardar_datos(datos)
+            return redirect(url_for('inicio', paso=4))
 
     recalcular_recetas(datos)
     recalcular_boxes(datos)
@@ -191,6 +191,16 @@ def inicio():
         ingredientes_actuales=ingredientes_actuales
     )
 
+@app.route('/exportar_datos')
+def exportar_datos():
+    """Permite descargar una copia de seguridad actualizada de datos_pasteleria.json"""
+    return send_file(
+        ARCHIVO_DATOS,
+        mimetype='application/json',
+        as_attachment=True,
+        download_name='datos_pasteleria.json'
+    )
+
 @app.route('/nueva_venta', methods=['POST'])
 def nueva_venta():
     datos = cargar_datos()
@@ -201,7 +211,6 @@ def nueva_venta():
     cantidad = int(request.form.get('cantidad', 1) or 1)
     fecha = request.form.get('fecha', datetime.now().strftime('%Y-%m-%d'))
 
-    # Remueve únicamente las etiquetas al final del string
     producto_nombre = re.sub(r'\s*\((Receta|Box)\)\s*$', '', producto_raw, flags=re.IGNORECASE).strip()
 
     receta_match = next((r for r in recetas if r['nombre'].lower() == producto_nombre.lower()), None)
@@ -253,7 +262,6 @@ def nuevo_box():
 
     productos = []
     for p_nom, p_cant in zip(prod_nombres, prod_cantidades):
-        # Remueve únicamente las etiquetas finales como "(Receta Guardada)" o "(Insumo Suelto)"
         p_clean = re.sub(r'\s*\((Receta Guardada|Insumo Suelto)\)\s*$', '', p_nom, flags=re.IGNORECASE).strip()
         if p_clean and p_cant and float(p_cant) > 0:
             productos.append({'nombre': p_clean, 'cantidad': float(p_cant)})
