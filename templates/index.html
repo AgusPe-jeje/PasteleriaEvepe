@@ -756,41 +756,46 @@
         function actualizarPreciosBoxEnVivo() {
             const renglones = document.querySelectorAll('#contenedor-box-items .renglon-ingrediente');
             let costoProdsBoxTotal = 0;
-
+        
             renglones.forEach(r => {
                 const inputNombre = r.querySelector('input[name="box_prod_nombre[]"]');
                 const inputCant = r.querySelector('input[name="box_prod_cantidad[]"]');
                 const spanSubtotal = r.querySelector('.subtotal-box-item');
-
+        
                 if (!inputNombre || !inputCant) return;
-
+        
                 let rawNombre = inputNombre.value.trim();
                 let cantidad = parseFloat(inputCant.value) || 0;
-
+        
                 let cleanNombre = rawNombre
                     .replace(/\(Receta Guardada\)/gi, '')
                     .replace(/\(Insumo Suelto\)/gi, '')
                     .trim();
-
+        
                 let cleanNorm = normalizarTexto(cleanNombre);
                 let costoUnitario = 0;
-
+        
                 const recetaMatch = recetasGuardadasJS.find(rec => normalizarTexto(rec.nombre) === cleanNorm);
                 if (recetaMatch) {
-                    costoUnitario = recetaMatch.costo || 0;
+                    // Toma el costo base o resta el costo de la caja individual si existía
+                    if (recetaMatch.costo_base) {
+                        costoUnitario = recetaMatch.costo_base;
+                    } else {
+                        costoUnitario = (recetaMatch.costo || 0) - (recetaMatch.costo_caja || 0);
+                    }
                 } else if (insumosJS[cleanNombre]) {
                     const ins = insumosJS[cleanNombre];
                     costoUnitario = (1 / ins.paquete_cant) * ins.precio_compra;
                 }
-
+        
                 const subtotal = costoUnitario * cantidad;
                 costoProdsBoxTotal += subtotal;
-
+        
                 if (spanSubtotal) {
                     spanSubtotal.innerText = `$${Math.round(subtotal).toLocaleString('es-AR')}`;
                 }
             });
-
+        
             // Cálculo caja del Box
             const inputCajaBox = document.getElementById('caja_box_input');
             let costoCajaBox = 0;
@@ -799,7 +804,7 @@
                     .replace(/\(Insumo Suelto\)/gi, '')
                     .replace(/\s*\(en [^)]+\)\s*$/i, '')
                     .trim();
-
+        
                 if (insumosJS[cleanCajaBox]) {
                     const dCaja = insumosJS[cleanCajaBox];
                     costoCajaBox = (1 / dCaja.paquete_cant) * dCaja.precio_compra;
@@ -807,20 +812,20 @@
                 const spanSubCajaBox = document.getElementById('live-subtotal-caja-box');
                 if (spanSubCajaBox) spanSubCajaBox.innerText = `+$${Math.round(costoCajaBox).toLocaleString('es-AR')}`;
             }
-
+        
             const costoTotalBox = costoProdsBoxTotal + costoCajaBox;
-
+        
             const selectGanancia = document.querySelector('select[name="porcentaje_ganancia_box"]');
             const porcentaje = parseFloat(selectGanancia ? selectGanancia.value : 50) || 50;
-
+        
             const gananciaCalculada = costoTotalBox * (porcentaje / 100);
             const precioVentaBruto = costoTotalBox + gananciaCalculada;
             const precioVentaRedondeado = redondearPrecioJS(precioVentaBruto, 100);
-
+        
             const elemProds = document.getElementById('live-costo-box-prods');
             const elemCajaRes = document.getElementById('live-costo-caja-box-resumen');
             const elemPrecio = document.getElementById('live-precio-box');
-
+        
             if (elemProds) elemProds.innerText = `$${Math.round(costoProdsBoxTotal).toLocaleString('es-AR')}`;
             if (elemCajaRes) elemCajaRes.innerText = `$${Math.round(costoCajaBox).toLocaleString('es-AR')}`;
             if (elemPrecio) elemPrecio.innerText = `$${precioVentaRedondeado.toLocaleString('es-AR')}`;
