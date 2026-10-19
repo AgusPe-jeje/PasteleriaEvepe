@@ -682,36 +682,46 @@
             const renglones = document.querySelectorAll('#contenedor-cotizador-items .renglon-ingrediente');
             let itemsParaTexto = [];
             let totalGeneral = 0;
-
+        
             renglones.forEach(r => {
-                const rawNombre = r.querySelector('.item-cotizar-nombre').value.trim();
-                const cant = parseInt(r.querySelector('.item-cotizar-cant').value || 1);
-
+                const inputNombre = r.querySelector('.item-cotizar-nombre');
+                const inputCant = r.querySelector('.item-cotizar-cant');
+                
+                if (!inputNombre || !inputCant) return;
+        
+                let rawNombre = inputNombre.value.trim();
+                const cant = parseInt(inputCant.value || 1);
+        
                 if (rawNombre && cant > 0) {
-                    const cleanNombre = rawNombre.replace(/\s*\((Receta\vert{}Box)\)\s*$/i, '').trim();
-                    const recetaMatch = recetasGuardadasJS.find(rec => rec.nombre.toLowerCase() === cleanNombre.toLowerCase());
-                    const boxMatch = boxesGuardadosJS.find(bx => bx.nombre.toLowerCase() === cleanNombre.toLowerCase());
-
-                    if (recetaMatch || boxMatch) {
-                        const item = recetaMatch || boxMatch;
+                    // Remueve la etiqueta final "(Receta)" o "(Box)" ignorando espacios
+                    let cleanNombre = rawNombre.replace(/\s*\((Receta\vert{}Box)\)\s*$/i, '').trim();
+                    let cleanNorm = normalizarTexto(cleanNombre);
+        
+                    // Busca coincidencia en recetas guardadas o boxes
+                    const recetaMatch = recetasGuardadasJS.find(rec => normalizarTexto(rec.nombre) === cleanNorm);
+                    const boxMatch = boxesGuardadosJS.find(bx => normalizarTexto(bx.nombre) === cleanNorm);
+        
+                    const item = recetaMatch || boxMatch;
+        
+                    if (item) {
                         const subtotal = item.precio_venta * cant;
                         totalGeneral += subtotal;
                         itemsParaTexto.push(`• ${cant}x ${item.nombre} ($${subtotal})`);
                     }
                 }
             });
-
+        
             if (itemsParaTexto.length === 0) {
                 alert("Por favor elegí al menos un producto válido para cotizar.");
                 return;
             }
-
+        
             let texto = `🎂 *Pastelería Evepe - Presupuesto* | *Momentos dulces* ✨\n\n`;
             texto += `📋 *Detalle del pedido:*\n`;
             texto += itemsParaTexto.join('\n') + `\n\n`;
             texto += `💵 *TOTAL ESTIMADO:* $${totalGeneral}\n\n`;
             texto += `📲 *¡Consultanos para confirmar y reservar tu fecha!*`;
-
+        
             navigator.clipboard.writeText(texto).then(() => {
                 alert("¡Presupuesto consolidado copiado! Listo para pegar en WhatsApp.");
             }).catch(err => {
