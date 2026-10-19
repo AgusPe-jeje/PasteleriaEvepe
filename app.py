@@ -94,7 +94,7 @@ def recalcular_boxes(datos):
             cant_unidades = prod['cantidad']
             
             if receta_match:
-                # Toma ÚNICAMENTE el costo de ingredientes + 15% gas/luz (SIN la caja individual de la receta)
+                # Costo de la receta SIN la caja individual
                 costo_receta_sin_caja = obtener_costo_receta_sin_caja(receta_match, insumos)
                 costo_prods_box += costo_receta_sin_caja * cant_unidades
             elif prod['nombre'] in insumos:
@@ -102,7 +102,7 @@ def recalcular_boxes(datos):
                 costo_item = (cant_unidades / d['paquete_cant']) * d['precio_compra']
                 costo_prods_box += costo_item
 
-        # Costo de la caja principal del Box
+        # Costo de la caja del Box
         nombre_caja = box.get('caja_nombre', '')
         c_caja = 0
         if nombre_caja in insumos:
@@ -111,11 +111,13 @@ def recalcular_boxes(datos):
 
         costo_total_box = costo_prods_box + c_caja
         ganancia_calculada = costo_total_box * (porcentaje_box / 100)
-        precio_venta_bruto = costo_total_box + ganancia_calculada
         
+        precio_venta_bruto = costo_total_box + ganancia_calculada
         precio_venta_redondeado = redondear_precio(precio_venta_bruto, paso=100)
         ganancia_real = precio_venta_redondeado - costo_total_box
 
+        box['costo_prods'] = int(costo_prods_box)
+        box['costo_caja'] = int(c_caja)
         box['costo'] = int(costo_total_box)
         box['ganancia'] = int(ganancia_real)
         box['precio_venta'] = precio_venta_redondeado
