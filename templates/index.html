@@ -234,23 +234,37 @@
 
                 <label style="font-weight: bold; margin-bottom: 8px; display: block;">Productos que incluye este Box:</label>
                 <div id="contenedor-box-items">
-                    <div class="renglon-ingrediente">
-                        <input type="text" name="box_prod_nombre[]" list="lista-combos-autocompletar" placeholder="🔍 Buscar receta o empaque..." required style="flex: 2;">
-                        <input type="number" step="1" name="box_prod_cantidad[]" placeholder="Cantidad" value="1" required style="flex: 1;">
-                        <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                    <div class="renglon-ingrediente" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <input type="text" name="box_prod_nombre[]" list="lista-combos-autocompletar" placeholder="🔍 Buscar receta o empaque..." oninput="actualizarPreciosBoxEnVivo()" required style="flex: 2; min-width: 180px;">
+                        <input type="number" step="1" name="box_prod_cantidad[]" placeholder="Cantidad" value="1" oninput="actualizarPreciosBoxEnVivo()" required style="flex: 1; min-width: 90px;">
+                        <span class="subtotal-box-item" style="font-size: 0.9rem; font-weight: bold; color: #6a1b9a; min-width: 75px; text-align: right;">$0</span>
+                        <button type="button" class="btn-borrar" onclick="borrarRenglonBoxLive(this)">❌</button>
                     </div>
                 </div>
 
-                <button type="button" class="btn-sumar-renglon" onclick="agregarRenglonBox()">➕ Agregar otro producto al Box</button>
+                <button type="button" class="btn-sumar-renglon" onclick="agregarRenglonBoxLive()">➕ Agregar otro producto al Box</button>
 
                 <div class="campo-grande" style="margin-top: 15px;">
                     <label><strong>¿Qué porcentaje de ganancia querés sumarle al Box?</strong></label>
-                    <select name="porcentaje_ganancia_box" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px;">
+                    <select name="porcentaje_ganancia_box" onchange="actualizarPreciosBoxEnVivo()" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ab47bc; font-size: 1rem; margin-top: 5px;">
                         <option value="30">Tranquilo (30% de ganancia)</option>
                         <option value="50" selected>Estándar (50% de ganancia) - Recomendado</option>
                         <option value="80">Alto (80% de ganancia)</option>
                         <option value="100">Duplicar el costo (100% de ganancia)</option>
                     </select>
+                </div>
+
+                <!-- RESUMEN EN VIVO MIENTRAS ARMAS EL BOX -->
+                <div id="caja-resumen-box-vivo" style="background-color: #fcf4ff; border: 2px solid #ab47bc; border-radius: 12px; padding: 15px; margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 0.95rem; color: #4a148c;">📦 Costo de Productos en vivo:</span>
+                        <strong id="live-costo-box" style="font-size: 1.1rem; color: #4a148c;">$0</strong>
+                    </div>
+                    <hr style="border: none; border-top: 1px dashed #ab47bc; margin: 8px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem;">
+                        <span style="font-weight: bold; color: #2e7d32;">🎁 PRECIO VENTA BOX VIVO:</span>
+                        <strong id="live-precio-box" style="font-size: 1.4rem; color: #2e7d32;">$0</strong>
+                    </div>
                 </div>
 
                 <div class="botones-accion" style="margin-top: 20px;">
@@ -289,6 +303,15 @@
                 <button type="button" onclick="copiarPresupuestoMultiproducto()" class="btn-violeta" style="width: 100%; padding: 12px; font-weight: bold; font-size: 1rem;">
                     📲 Copiar Presupuesto Consolidado
                 </button>
+            </div>
+
+            <!-- BOTÓN EXPORTAR BASE DE DATOS LOCAL -->
+            <div style="background-color: #e8f5e9; border: 2px dashed #2e7d32; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 30px;">
+                <h4 style="margin: 0 0 8px 0; color: #1b5e20;">💾 Copia de Seguridad de tus Datos</h4>
+                <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: #333;">Bajá una copia de tu base de datos para guardarla en tu compu o actualizar GitHub:</p>
+                <a href="/exportar_datos" class="btn-violeta" style="text-decoration: none; display: inline-block; padding: 10px 18px; font-weight: bold; font-size: 0.95rem; background-color: #2e7d32;">
+                    📥 Descargar datos_pasteleria.json
+                </a>
             </div>
 
             <hr class="linea">
@@ -560,6 +583,7 @@
             return Math.round(valor / paso) * paso;
         }
 
+        // CÁLCULO EN VIVO DE RECETAS (PESTAÑA 2)
         function actualizarPreciosEnVivo() {
             const renglones = document.querySelectorAll('#contenedor-ingredientes .renglon-ingrediente');
             let costoIngredientesTotal = 0;
@@ -609,6 +633,59 @@
             if (elemSug) elemSug.innerText = `$${precioSugerido.toLocaleString('es-AR')}`;
         }
 
+        // CÁLCULO EN VIVO DE BOXES (PESTAÑA 3)
+        function actualizarPreciosBoxEnVivo() {
+            const renglones = document.querySelectorAll('#contenedor-box-items .renglon-ingrediente');
+            let costoBoxTotal = 0;
+
+            renglones.forEach(r => {
+                const inputNombre = r.querySelector('input[name="box_prod_nombre[]"]');
+                const inputCant = r.querySelector('input[name="box_prod_cantidad[]"]');
+                const spanSubtotal = r.querySelector('.subtotal-box-item');
+
+                if (!inputNombre || !inputCant) return;
+
+                let rawNombre = inputNombre.value.trim();
+                let cantidad = parseFloat(inputCant.value) || 0;
+
+                let cleanNombre = rawNombre
+                    .replace(/\(Receta Guardada\)/gi, '')
+                    .replace(/\(Insumo Suelto\)/gi, '')
+                    .trim();
+
+                let cleanNorm = normalizarTexto(cleanNombre);
+                let costoUnitario = 0;
+
+                const recetaMatch = recetasGuardadasJS.find(rec => normalizarTexto(rec.nombre) === cleanNorm);
+                if (recetaMatch) {
+                    costoUnitario = recetaMatch.costo || 0;
+                } else if (insumosJS[cleanNombre]) {
+                    const ins = insumosJS[cleanNombre];
+                    costoUnitario = (1 / ins.paquete_cant) * ins.precio_compra;
+                }
+
+                const subtotal = costoUnitario * cantidad;
+                costoBoxTotal += subtotal;
+
+                if (spanSubtotal) {
+                    spanSubtotal.innerText = `$${Math.round(subtotal).toLocaleString('es-AR')}`;
+                }
+            });
+
+            const selectGanancia = document.querySelector('select[name="porcentaje_ganancia_box"]');
+            const porcentaje = parseFloat(selectGanancia ? selectGanancia.value : 50) || 50;
+
+            const gananciaCalculada = costoBoxTotal * (porcentaje / 100);
+            const precioVentaBruto = costoBoxTotal + gananciaCalculada;
+            const precioVentaRedondeado = redondearPrecioJS(precioVentaBruto, 100);
+
+            const elemCosto = document.getElementById('live-costo-box');
+            const elemPrecio = document.getElementById('live-precio-box');
+
+            if (elemCosto) elemCosto.innerText = `$${Math.round(costoBoxTotal).toLocaleString('es-AR')}`;
+            if (elemPrecio) elemPrecio.innerText = `$${precioVentaRedondeado.toLocaleString('es-AR')}`;
+        }
+
         function agregarRenglonLive() {
             const contenedor = document.getElementById('contenedor-ingredientes');
             const primerRenglon = contenedor.querySelector('.renglon-ingrediente');
@@ -632,13 +709,28 @@
             }
         }
 
-        function agregarRenglonBox() {
+        function agregarRenglonBoxLive() {
             const contenedor = document.getElementById('contenedor-box-items');
             const primerRenglon = contenedor.querySelector('.renglon-ingrediente');
             const nuevoRenglon = primerRenglon.cloneNode(true);
+            
             nuevoRenglon.querySelectorAll('input').forEach(input => input.value = "");
             nuevoRenglon.querySelector('input[type="number"]').value = "1";
+            const spanSub = nuevoRenglon.querySelector('.subtotal-box-item');
+            if (spanSub) spanSub.innerText = "$0";
+
             contenedor.appendChild(nuevoRenglon);
+            actualizarPreciosBoxEnVivo();
+        }
+
+        function borrarRenglonBoxLive(boton) {
+            const renglones = document.querySelectorAll('#contenedor-box-items .renglon-ingrediente');
+            if (renglones.length > 1) {
+                boton.parentElement.remove();
+                actualizarPreciosBoxEnVivo();
+            } else {
+                alert("Tenés que dejar al menos un producto en el Box.");
+            }
         }
 
         function agregarRenglonCotizador() {
@@ -712,6 +804,7 @@
             box.productos.forEach(item => {
                 const divRenglon = document.createElement('div');
                 divRenglon.className = 'renglon-ingrediente';
+                divRenglon.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;';
 
                 let valorMostrar = item.nombre;
                 const esReceta = recetasGuardadasJS.some(r => r.nombre === item.nombre);
@@ -722,12 +815,15 @@
                 }
 
                 divRenglon.innerHTML = `
-                    <input type="text" name="box_prod_nombre[]" list="lista-combos-autocompletar" placeholder="🔍 Buscar receta o empaque..." value="${valorMostrar}" required style="flex: 2;">
-                    <input type="number" step="1" name="box_prod_cantidad[]" value="${item.cantidad}" placeholder="Cantidad" required style="flex: 1;">
-                    <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                    <input type="text" name="box_prod_nombre[]" list="lista-combos-autocompletar" placeholder="🔍 Buscar receta o empaque..." value="${valorMostrar}" oninput="actualizarPreciosBoxEnVivo()" required style="flex: 2; min-width: 180px;">
+                    <input type="number" step="1" name="box_prod_cantidad[]" value="${item.cantidad}" placeholder="Cantidad" oninput="actualizarPreciosBoxEnVivo()" required style="flex: 1; min-width: 90px;">
+                    <span class="subtotal-box-item" style="font-size: 0.9rem; font-weight: bold; color: #6a1b9a; min-width: 75px; text-align: right;">$0</span>
+                    <button type="button" class="btn-borrar" onclick="borrarRenglonBoxLive(this)">❌</button>
                 `;
                 contenedor.appendChild(divRenglon);
             });
+
+            actualizarPreciosBoxEnVivo();
         }
 
         function guardarRecetaActual() {
@@ -841,6 +937,7 @@
         // CONTROL DE NAVEGACIÓN Y CÁLCULOS AL CARGAR
         document.addEventListener('DOMContentLoaded', () => {
             actualizarPreciosEnVivo();
+            actualizarPreciosBoxEnVivo();
 
             const urlParams = new URLSearchParams(window.location.search);
             const pasoUrl = urlParams.get('paso');
