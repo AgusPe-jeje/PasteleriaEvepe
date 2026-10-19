@@ -240,8 +240,40 @@
             </form>
         </section>
 
-        <!-- PESTAÑA 4: MIS GUARDADOS -->
+        <!-- PESTAÑA 4: MIS GUARDADOS & COTIZADOR MULTIPRODUCTO -->
         <section id="paso-4" class="tarjeta paso-contenido">
+            
+            <!-- COTIZADOR MULTIPRODUCTO -->
+            <div style="background-color: #fcf4ff; padding: 20px; border-radius: 12px; border: 2px solid #ab47bc; margin-bottom: 30px;">
+                <h3 style="margin-top: 0; color: #6a1b9a;">🛒 Cotizador Multiproducto para Cliente</h3>
+                <p class="subtxt">Elegí varios productos para armar un presupuesto combinado y mandarlo por WhatsApp:</p>
+
+                <datalist id="lista-presupuesto-autocompletar">
+                    {% for r in recetas %}
+                        <option value="{{ r.nombre }} (Receta)"></option>
+                    {% endfor %}
+                    {% for b in boxes %}
+                        <option value="{{ b.nombre }} (Box)"></option>
+                    {% endfor %}
+                </datalist>
+
+                <div id="contenedor-cotizador-items">
+                    <div class="renglon-ingrediente">
+                        <input type="text" class="item-cotizar-nombre" list="lista-presupuesto-autocompletar" placeholder="🔍 Buscar receta o box..." style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid #ab47bc;">
+                        <input type="number" class="item-cotizar-cant" value="1" min="1" placeholder="Cant." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ab47bc;">
+                        <button type="button" class="btn-borrar" onclick="borrarRenglon(this)">❌</button>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-sumar-renglon" onclick="agregarRenglonCotizador()" style="margin-bottom: 15px;">➕ Agregar otro producto al presupuesto</button>
+
+                <button type="button" onclick="copiarPresupuestoMultiproducto()" class="btn-violeta" style="width: 100%; padding: 12px; font-weight: bold; font-size: 1rem;">
+                    📲 Copiar Presupuesto Consolidado
+                </button>
+            </div>
+
+            <hr class="linea">
+
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
                 <h2 style="margin: 0;">📚 4. Mis Recetas y Boxes Guardados</h2>
                 <input type="text" 
@@ -267,6 +299,12 @@
                             <p>Costo actual: <strong>${{ r.costo }}</strong></p>
                             <p class="precio-destacado">Vender a: <strong>${{ r.precio_venta }}</strong></p>
                             <small>Ganancia limpia: ${{ r.ganancia }}</small>
+                            <button type="button" 
+                                    onclick="copiarPresupuesto('{{ r.nombre }}', '{{ r.precio_venta }}')" 
+                                    class="btn-violeta" 
+                                    style="width: 100%; margin-top: 12px; padding: 8px; font-size: 0.85rem; border-radius: 8px;">
+                                📋 Copiar Presupuesto
+                            </button>
                         </div>
                     {% endfor %}
                 </div>
@@ -295,6 +333,14 @@
                             <p style="margin: 5px 0;">Costo del Box: <strong>${{ b.costo }}</strong></p>
                             <p class="precio-destacado" style="font-size: 1.2rem;">Vender a: <strong>${{ b.precio_venta }}</strong></p>
                             <small style="color: #2e7d32; font-weight: bold;">Ganancia Total: ${{ b.ganancia }}</small>
+
+                            <button type="button" 
+                                    data-index="{{ loop.index0 }}"
+                                    onclick="copiarPresupuestoBox(this)" 
+                                    class="btn-violeta" 
+                                    style="width: 100%; margin-top: 12px; padding: 8px; font-size: 0.85rem; border-radius: 8px;">
+                                📋 Copiar Presupuesto
+                            </button>
                         </div>
                     {% endfor %}
                 </div>
@@ -312,10 +358,10 @@
                 <div style="display: flex; align-items: center; gap: 8px; background-color: #f3e5f5; padding: 6px 12px; border-radius: 10px; border: 1px solid #ce93d8;">
                     <label for="filtro-mes" style="font-weight: bold; color: #4a148c; font-size: 0.9rem;">📅 Filtrar por mes:</label>
                     <input type="month" 
-                        id="filtro-mes" 
-                        value="{{ mes_seleccionado }}" 
-                        onchange="location.href='/?paso=5&mes_filtro=' + this.value" 
-                        style="padding: 6px 10px; border-radius: 8px; border: 1px solid #ab47bc; outline: none; font-weight: bold; color: #6a1b9a;">
+                           id="filtro-mes" 
+                           value="{{ mes_seleccionado }}" 
+                           onchange="location.href='/?paso=5&mes_filtro=' + this.value" 
+                           style="padding: 6px 10px; border-radius: 8px; border: 1px solid #ab47bc; outline: none; font-weight: bold; color: #6a1b9a;">
                 </div>
             </div>
 
@@ -507,6 +553,15 @@
             contenedor.appendChild(nuevoRenglon);
         }
 
+        function agregarRenglonCotizador() {
+            const contenedor = document.getElementById('contenedor-cotizador-items');
+            const primerRenglon = contenedor.querySelector('.renglon-ingrediente');
+            const nuevoRenglon = primerRenglon.cloneNode(true);
+            nuevoRenglon.querySelectorAll('input').forEach(input => input.value = "");
+            nuevoRenglon.querySelector('input[type="number"]').value = "1";
+            contenedor.appendChild(nuevoRenglon);
+        }
+
         function borrarRenglon(boton) {
             const renglones = boton.parentElement.parentElement.querySelectorAll('.renglon-ingrediente');
             if (renglones.length > 1) {
@@ -591,6 +646,76 @@
             inputAccion.value = '1';
             form.appendChild(inputAccion);
             form.submit();
+        }
+
+        // FUNCIONES DE COPIA A WHATSAPP
+        function copiarPresupuesto(nombre, precio, detalles = "") {
+            let texto = `🎂 *Pastelería Evepe*\n\n`;
+            texto += `✨ *${nombre}*\n`;
+            if (detalles) {
+                texto += `\n📋 *Incluye:*\n${detalles}\n`;
+            }
+            texto += `\n💰 *Precio:* $${precio}\n\n`;
+            texto += `📲 *¡Consultanos para reservar tu fecha!*`;
+
+            navigator.clipboard.writeText(texto).then(() => {
+                alert(`¡Presupuesto de "${nombre}" copiado al portapapeles! Listo para pegar en WhatsApp.`);
+            }).catch(err => {
+                prompt("Copia este texto para enviarlo por WhatsApp:", texto);
+            });
+        }
+
+        function copiarPresupuestoBox(btn) {
+            const index = parseInt(btn.getAttribute('data-index'));
+            if (isNaN(index) || !boxesGuardadosJS[index]) return;
+
+            const box = boxesGuardadosJS[index];
+            const detallesText = box.productos
+                .map(p => `• ${p.cantidad}x ${p.nombre}`)
+                .join('\n');
+
+            copiarPresupuesto(box.nombre, box.precio_venta, detallesText);
+        }
+
+        function copiarPresupuestoMultiproducto() {
+            const renglones = document.querySelectorAll('#contenedor-cotizador-items .renglon-ingrediente');
+            let itemsParaTexto = [];
+            let totalGeneral = 0;
+
+            renglones.forEach(r => {
+                const rawNombre = r.querySelector('.item-cotizar-nombre').value.trim();
+                const cant = parseInt(r.querySelector('.item-cotizar-cant').value || 1);
+
+                if (rawNombre && cant > 0) {
+                    const cleanNombre = rawNombre.split(' (')[0].trim();
+                    const recetaMatch = recetasGuardadasJS.find(rec => rec.nombre.toLowerCase() === cleanNombre.toLowerCase());
+                    const boxMatch = boxesGuardadosJS.find(bx => bx.nombre.toLowerCase() === cleanNombre.toLowerCase());
+
+                    if (recetaMatch || boxMatch) {
+                        const item = recetaMatch || boxMatch;
+                        const subtotal = item.precio_venta * cant;
+                        totalGeneral += subtotal;
+                        itemsParaTexto.push(`• ${cant}x ${item.nombre} ($${subtotal})`);
+                    }
+                }
+            });
+
+            if (itemsParaTexto.length === 0) {
+                alert("Por favor elegí al menos un producto válido para cotizar.");
+                return;
+            }
+
+            let texto = `🎂 *Pastelería Evepe - Presupuesto*\n\n`;
+            texto += `📋 *Detalle del pedido:*\n`;
+            texto += itemsParaTexto.join('\n') + `\n\n`;
+            texto += `💵 *TOTAL ESTIMADO:* $${totalGeneral}\n\n`;
+            texto += `📲 *¡Consultanos para confirmar y reservar tu fecha!*`;
+
+            navigator.clipboard.writeText(texto).then(() => {
+                alert("¡Presupuesto consolidado copiado! Listo para pegar en WhatsApp.");
+            }).catch(err => {
+                prompt("Copia este texto para enviarlo por WhatsApp:", texto);
+            });
         }
 
         // CONTROL DE NAVEGACIÓN POR PARÁMETROS URL
