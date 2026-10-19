@@ -650,18 +650,19 @@
 
         // FUNCIONES DE COPIA A WHATSAPP
         function copiarPresupuesto(nombre, precio, detalles = "") {
-            let texto = `🎂 *Pastelería Evepe*\n\n`;
-            texto += `✨ *${nombre}*\n`;
+            let texto = `🎂 *Pastelería Evepe* | *Momentos dulces* ✨\n\n`;
+            texto += `¡Hola! 👋 Te dejamos el detalle de esta propuesta pensada para regalar o regalarte:\n\n`;
+            texto += `🎁 *${nombre}*\n\n`;
             if (detalles) {
-                texto += `\n📋 *Incluye:*\n${detalles}\n`;
+                texto += `✨ *¿Qué incluye?*\n${detalles}\n\n`;
             }
-            texto += `\n💰 *Precio:* $${precio}\n\n`;
-            texto += `📲 *¡Consultanos para reservar tu fecha!*`;
+            texto += `💵 *Precio total:* $${precio}\n\n`;
+            texto += `📩 *¡Escribinos para consultar disponibilidad y reservar tu fecha!* ❤️`;
 
             navigator.clipboard.writeText(texto).then(() => {
-                alert(`¡Presupuesto de "${nombre}" copiado al portapapeles! Listo para pegar en WhatsApp.`);
+                alert(`¡Presupuesto de "${nombre}" copiado con éxito! Listo para enviar por WhatsApp.`);
             }).catch(err => {
-                prompt("Copia este texto para enviarlo por WhatsApp:", texto);
+                prompt("Copiá este texto para enviarlo:", texto);
             });
         }
 
@@ -687,7 +688,7 @@
                 const cant = parseInt(r.querySelector('.item-cotizar-cant').value || 1);
 
                 if (rawNombre && cant > 0) {
-                    const cleanNombre = rawNombre.split(' (')[0].trim();
+                    const cleanNombre = rawNombre.replace(/\s*\((Receta\vert{}Box)\)\s*$/i, '').trim();
                     const recetaMatch = recetasGuardadasJS.find(rec => rec.nombre.toLowerCase() === cleanNombre.toLowerCase());
                     const boxMatch = boxesGuardadosJS.find(bx => bx.nombre.toLowerCase() === cleanNombre.toLowerCase());
 
@@ -705,7 +706,7 @@
                 return;
             }
 
-            let texto = `🎂 *Pastelería Evepe - Presupuesto*\n\n`;
+            let texto = `🎂 *Pastelería Evepe - Presupuesto* | *Momentos dulces* ✨\n\n`;
             texto += `📋 *Detalle del pedido:*\n`;
             texto += itemsParaTexto.join('\n') + `\n\n`;
             texto += `💵 *TOTAL ESTIMADO:* $${totalGeneral}\n\n`;
