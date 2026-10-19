@@ -426,34 +426,72 @@
                 <h3>🎁 Boxes y Combos</h3>
                 <div class="grid-guardadas" id="contenedor-boxes-guardados">
                     {% for b in boxes %}
-                        <div class="card-guardada card-item-guardado" style="border-color: #ab47bc; background-color: #fcf4ff;" data-nombre="{{ b.nombre }}">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                <h3 style="color: #6a1b9a; margin: 0;">{{ b.nombre }}</h3>
-                                <form method="POST" action="/eliminar_box/{{ loop.index0 }}" style="display:inline;">
-                                    <button type="submit" class="btn-borrar-insumo" title="Eliminar box">✕</button>
-                                </form>
+                        <div class="card-guardada card-item-guardado" data-nombre="{{ b.nombre }}" style="background: #ffffff; border: 1px solid #ab47bc; border-radius: 14px; padding: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+                            
+                            <!-- 1. ENCABEZADO Y PRODUCTOS -->
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <h3 style="margin: 0; color: #6a1b9a; font-size: 1.15rem; font-weight: 700;">{{ b.nombre }}</h3>
+                                    <form method="POST" action="/eliminar_box/{{ loop.index0 }}" style="display:inline; margin: 0;">
+                                        <button type="submit" class="btn-borrar-insumo" title="Eliminar box" style="background: #ffebee; color: #d32f2f; border: none; border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+                                    </form>
+                                </div>
+            
+                                <!-- LISTA DE PRODUCTOS INCLUIDOS -->
+                                <div style="background-color: #fcf4ff; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px;">
+                                    <ul style="padding-left: 16px; margin: 0; font-size: 0.88rem; color: #444;">
+                                        {% for prod in b.productos %}
+                                            <li style="margin-bottom: 3px;"><strong>{{ prod.cantidad }}x</strong> {{ prod.nombre }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+            
+                                <!-- 2. DESGLOSE DE COSTOS -->
+                                <div style="background-color: #faf5fb; border: 1px solid #f3e5f5; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.88rem;">
+                                    <div style="display: flex; justify-content: space-between; color: #555; margin-bottom: 4px;">
+                                        <span>🍱 Productos + Serv.:</span>
+                                        <strong style="color: #333;">${{ b.costo_prods or (b.costo - (b.costo_caja or 0)) }}</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; color: #555; margin-bottom: 6px;">
+                                        <span>📦 Caja Principal:</span>
+                                        <strong style="color: {% if b.caja_nombre %}#e65100{% else %}#888{% endif %};">
+                                            {% if b.caja_nombre %}{{ b.caja_nombre }} (+${{ b.costo_caja or 0 }}){% else %}Sin caja{% endif %}
+                                        </strong>
+                                    </div>
+                                    <hr style="border: none; border-top: 1px dashed #ce93d8; margin: 6px 0;">
+                                    <div style="display: flex; justify-content: space-between; color: #2a2a2a; font-weight: bold; font-size: 0.92rem;">
+                                        <span>Costo Total Box:</span>
+                                        <span>${{ b.costo }}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <ul style="padding-left: 18px; margin: 10px 0; font-size: 0.9rem; color: #555;">
-                                {% for prod in b.productos %}
-                                    <li>{{ prod.cantidad }}x {{ prod.nombre }}</li>
-                                {% endfor %}
-                            </ul>
-                            <p style="margin: 5px 0;">Costo del Box: <strong>${{ b.costo }}</strong></p>
-                            <p class="precio-destacado" style="font-size: 1.2rem;">Vender a: <strong>${{ b.precio_venta }}</strong></p>
-                            <small style="color: #2e7d32; font-weight: bold;">Ganancia Total: ${{ b.ganancia }}</small>
-
-                            <button type="button" 
-                                    data-index="{{ loop.index0 }}"
-                                    onclick="copiarPresupuestoBox(this)" 
-                                    class="btn-violeta" 
-                                    style="width: 100%; margin-top: 12px; padding: 8px; font-size: 0.85rem; border-radius: 8px;">
-                                📋 Copiar Presupuesto
-                            </button>
+            
+                            <!-- 3. PRECIO FINAL Y GANANCIA -->
+                            <div>
+                                <div style="text-align: center; margin-bottom: 12px;">
+                                    <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #2e7d32; font-weight: bold; display: block; margin-bottom: 2px;">Precio de Venta</span>
+                                    <div style="font-size: 1.5rem; font-weight: 800; color: #2e7d32; line-height: 1.1;">
+                                        ${{ b.precio_venta }}
+                                    </div>
+                                    <div style="display: inline-block; background-color: #e8f5e9; color: #1b5e20; font-size: 0.82rem; font-weight: 600; padding: 3px 10px; border-radius: 12px; margin-top: 6px;">
+                                        Ganancia limpia: ${{ b.ganancia }}
+                                    </div>
+                                </div>
+            
+                                <button type="button" 
+                                        data-index="{{ loop.index0 }}"
+                                        onclick="copiarPresupuestoBox(this)" 
+                                        class="btn-violeta" 
+                                        style="width: 100%; padding: 10px; font-size: 0.88rem; font-weight: bold; border-radius: 10px; border: none; cursor: pointer;">
+                                    📋 Copiar Presupuesto
+                                </button>
+                            </div>
+            
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p>Aún no armaste ningún box o combo.</p>
+                <p style="color: #777;">Aún no armaste ningún box o combo.</p>
             {% endif %}
         </section>
 
