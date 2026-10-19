@@ -13,7 +13,6 @@ def ping():
     return "OK", 200
 
 def cargar_datos():
-    """Lee el archivo JSON del disco o crea la estructura vacía si no existe."""
     if os.path.exists(ARCHIVO_DATOS):
         with open(ARCHIVO_DATOS, 'r', encoding='utf-8') as f:
             datos = json.load(f)
@@ -28,7 +27,6 @@ def cargar_datos():
     }
 
 def guardar_datos(datos):
-    """Guarda en disco los cambios realizados en el diccionario."""
     with open(ARCHIVO_DATOS, 'w', encoding='utf-8') as f:
         json.dump(datos, f, ensure_ascii=False, indent=4)
 
@@ -48,9 +46,17 @@ def recalcular_recetas(datos):
                 d = insumos[n_ing]
                 c_ing += (cant / d['paquete_cant']) * d['precio_compra']
         
-        # 15% dedicado exclusivamente a Gas, Luz y Servicios Generales
+        # 15% de gas y luz sobre ingredientes
         c_gas_luz = c_ing * 0.15
-        c_total = c_ing + c_gas_luz
+        
+        # Costo de la caja seleccionada
+        nombre_caja = receta.get('caja_nombre', '')
+        c_caja = 0
+        if nombre_caja in insumos:
+            d_caja = insumos[nombre_caja]
+            c_caja = (1 / d_caja['paquete_cant']) * d_caja['precio_compra']
+
+        c_total = c_ing + c_gas_luz + c_caja
         ganancia_calculada = c_total * (receta.get('porcentaje', 80) / 100)
         
         precio_venta_bruto = c_total + ganancia_calculada
@@ -65,7 +71,7 @@ def recalcular_boxes(datos):
     insumos = datos.get('insumos', {})
     recetas = datos.get('recetas_guardadas', [])
     for box in datos.get('boxes_guardados', []):
-        costo_total_box = 0
+        costo_prods_box = 0
         porcentaje_box = box.get('porcentaje', 50)
         
         for prod in box.get('productos', []):
@@ -73,13 +79,20 @@ def recalcular_boxes(datos):
             cant_unidades = prod['cantidad']
             
             if receta_match:
-                costo_total_box += receta_match['costo'] * cant_unidades
+                costo_prods_box += receta_match['costo'] * cant_unidades
             elif prod['nombre'] in insumos:
-                # Insumo suelto o packaging/caja específica sumado a costo directo
                 d = insumos[prod['nombre']]
                 costo_item = (cant_unidades / d['paquete_cant']) * d['precio_compra']
-                costo_total_box += costo_item
+                costo_prods_box += costo_item
 
+        # Costo de la caja del box
+        nombre_caja = box.get('caja_nombre', '')
+        c_caja = 0
+        if nombre_caja in insumos:
+            d_caja = insumos[nombre_caja]
+            c_caja = (1 / d_caja['paquete_cant']) * d_caja['precio_compra']
+
+        costo_total_box = costo_prods_box + c_caja
         ganancia_calculada = costo_total_box * (porcentaje_box / 100)
         precio_venta_bruto = costo_total_box + ganancia_calculada
         
@@ -100,10 +113,12 @@ def inicio():
 
     costo_ingredientes = 0
     gastos_extras = 0
+    costo_caja = 0
     costo_total = 0
     ganancia_mano_obra = 0
     precio_sugerido = 0
     nombre_receta = ""
+    caja_seleccionada = ""
     porcentaje_ganancia = 80
     ingredientes_actuales = []
 
@@ -112,6 +127,9 @@ def inicio():
         nombres_usados = request.form.getlist('ingrediente_nombre[]')
         cantidades_usadas = request.form.getlist('ingrediente_cantidad[]')
         porcentaje_ganancia = float(request.form.get('porcentaje_ganancia') or 80)
+        
+        caja_raw = request.form.get('caja_receta_nombre', '').strip()
+        caja_seleccionada = re.sub(r'\s*\(en [^)]+\)\s*$', '', caja_raw, flags=re.IGNORECASE).strip()
 
         for nombre_raw, cant in zip(nombres_usados, cantidades_usadas):
             nombre = re.sub(r'\s*\(en [^)]+\)\s*$', '', nombre_raw, flags=re.IGNORECASE).strip()
@@ -123,8 +141,12 @@ def inicio():
                 costo_item = (cantidad / datos_insumo['paquete_cant']) * datos_insumo['precio_compra']
                 costo_ingredientes += costo_item
 
-        gastos_extras = costo_ingredientes * 0.15  # Gas y Luz
-        costo_total = costo_ingredientes + gastos_extras
+        if caja_seleccionada in insumos:
+            d_caja = insumos[caja_seleccionada]
+            costo_caja = (1 / d_caja['paquete_cant']) * d_caja['precio_compra']
+
+        gastos_extras = costo_ingredientes * 0.15
+        costo_total = costo_ingredientes + gastos_extras + costo_caja
         ganancia_mano_obra_bruta = costo_total * (porcentaje_ganancia / 100)
         precio_sugerido_bruto = costo_total + ganancia_mano_obra_bruta
         
@@ -137,10 +159,12 @@ def inicio():
             if receta_existente:
                 receta_existente['ingredientes'] = ingredientes_actuales
                 receta_existente['porcentaje'] = porcentaje_ganancia
+                receta_existente['caja_nombre'] = caja_seleccionada
             else:
                 recetas_guardadas.append({
                     'nombre': nombre_receta.strip(),
                     'ingredientes': ingredientes_actuales,
+                    'caja_nombre': caja_seleccionada,
                     'porcentaje': porcentaje_ganancia,
                     'costo': int(costo_total),
                     'precio_venta': int(precio_sugerido),
@@ -175,6 +199,7 @@ def inicio():
         boxes_json=json.dumps(boxes_guardados),
         costo_ingredientes=int(costo_ingredientes),
         gastos_extras=int(gastos_extras),
+        costo_caja=int(costo_caja),
         costo_total=int(costo_total),
         ganancia_mano_obra=int(ganancia_mano_obra),
         precio_sugerido=int(precio_sugerido),
@@ -188,6 +213,7 @@ def inicio():
         fecha_hoy=fecha_hoy,
         mes_seleccionado=mes_seleccionado,
         nombre_receta=nombre_receta,
+        caja_seleccionada=caja_seleccionada,
         ingredientes_actuales=ingredientes_actuales
     )
 
@@ -259,6 +285,9 @@ def nuevo_box():
     prod_cantidades = request.form.getlist('box_prod_cantidad[]')
     porcentaje_box = float(request.form.get('porcentaje_ganancia_box') or 50)
 
+    caja_raw = request.form.get('caja_box_nombre', '').strip()
+    caja_box = re.sub(r'\s*\((Insumo Suelto|en [^)]+)\)\s*$', '', caja_raw, flags=re.IGNORECASE).strip()
+
     productos = []
     for p_nom, p_cant in zip(prod_nombres, prod_cantidades):
         p_clean = re.sub(r'\s*\((Receta Guardada|Insumo Suelto)\)\s*$', '', p_nom, flags=re.IGNORECASE).strip()
@@ -270,10 +299,12 @@ def nuevo_box():
         if existente:
             existente['productos'] = productos
             existente['porcentaje'] = porcentaje_box
+            existente['caja_nombre'] = caja_box
         else:
             boxes_guardados.append({
                 'nombre': nombre_box,
                 'productos': productos,
+                'caja_nombre': caja_box,
                 'porcentaje': porcentaje_box,
                 'costo': 0,
                 'precio_venta': 0,
